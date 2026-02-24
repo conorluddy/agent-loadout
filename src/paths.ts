@@ -2,7 +2,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { mkdir } from "node:fs/promises";
 
-const BASE_DIR = join(homedir(), ".agent-starter");
+const BASE_DIR = join(homedir(), ".agent-loadout");
 const SKILLS_DIR = join(homedir(), ".claude", "skills");
 
 export const paths = {

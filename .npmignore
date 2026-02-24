@@ -1,0 +1,8 @@
+src/
+*.ts
+tsup.config.ts
+tsconfig.json
+.github/
+Brewfile
+CLAUDE.md
+pnpm-lock.yaml

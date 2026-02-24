@@ -30,8 +30,8 @@ import { writeSkills } from "./skills.js";
 const program = new Command();
 
 program
-  .name("agent-starter-kit")
-  .description("A curated CLI toolbelt for agentic coding workflows")
+  .name("agent-loadout")
+  .description("One command to load out your terminal for agentic coding")
   .version("0.1.0");
 
 // Handle Ctrl+C gracefully
@@ -66,9 +66,9 @@ program
     if (opts.all) {
       tools = TOOLS;
     } else if (opts.preset) {
-      const presetIds = opts.preset as PresetId[];
+      const rawIds = opts.preset as string[];
       const validIds = PRESETS.map((p) => p.id);
-      const invalid = presetIds.filter((p) => !validIds.includes(p));
+      const invalid = rawIds.filter((p) => !validIds.includes(p as PresetId));
       if (invalid.length > 0) {
         console.log(
           chalk.red(
@@ -77,6 +77,7 @@ program
         );
         process.exit(1);
       }
+      const presetIds = rawIds as PresetId[];
       tools = TOOLS.filter((t) => presetIds.includes(t.preset));
     } else {
       // Interactive flow
@@ -102,7 +103,7 @@ program
       );
       console.log(
         chalk.dim(
-          `  npx agent-starter-kit install ${opts.all ? "--all" : `--preset ${(opts.preset as string[]).join(" ")}`} --apply`,
+          `  npx agent-loadout install ${opts.all ? "--all" : `--preset ${(opts.preset as string[]).join(" ")}`} --apply`,
         ),
       );
       return;
@@ -164,7 +165,7 @@ program
       installed: verifyResultsToJson(results),
       timestamp: new Date().toISOString(),
     });
-    console.log(chalk.dim("  Receipt saved to ~/.agent-starter/receipt.json"));
+    console.log(chalk.dim("  Receipt saved to ~/.agent-loadout/receipt.json"));
   });
 
 // ── Verify command ──────────────────────────────────────

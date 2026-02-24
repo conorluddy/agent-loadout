@@ -52,7 +52,7 @@ export function printPreview(tools: Tool[]): void {
     console.log(chalk.bold("Brewfile:"));
     console.log(chalk.dim(brewfile));
     console.log(
-      chalk.dim("  → brew bundle --file ~/.agent-starter/Brewfile --no-lock"),
+      chalk.dim("  → brew bundle --file ~/.agent-loadout/Brewfile"),
     );
     console.log();
   }

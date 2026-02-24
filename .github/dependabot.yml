@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+    reviewers:
+      - "conorluddy"
+    assignees:
+      - "conorluddy"
+    open-pull-requests-limit: 5

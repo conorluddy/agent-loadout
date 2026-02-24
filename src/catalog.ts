@@ -127,6 +127,16 @@ export const TOOLS: Tool[] = [
     preset: "core",
   },
 
+  {
+    id: "xh",
+    name: "xh",
+    package: "xh",
+    installMethod: "brew",
+    verify: "xh --version",
+    description: "Friendly HTTP client",
+    preset: "core",
+  },
+
   // ── Agent ─────────────────────────────────────────────
   {
     id: "shellcheck",
@@ -198,6 +208,33 @@ export const TOOLS: Tool[] = [
     installMethod: "brew",
     verify: "tokei --version",
     description: "Code statistics",
+    preset: "agent",
+  },
+  {
+    id: "tldr",
+    name: "tldr",
+    package: "tldr",
+    installMethod: "brew",
+    verify: "tldr --version",
+    description: "Quick man page summaries",
+    preset: "agent",
+  },
+  {
+    id: "biome",
+    name: "biome",
+    package: "biome",
+    installMethod: "brew",
+    verify: "biome --version",
+    description: "Lint + format JS/TS",
+    preset: "agent",
+  },
+  {
+    id: "difftastic",
+    name: "difftastic",
+    package: "difftastic",
+    installMethod: "brew",
+    verify: "difft --version",
+    description: "Structural/AST diff",
     preset: "agent",
   },
 
@@ -303,6 +340,33 @@ export const TOOLS: Tool[] = [
     description: "Local HTTPS certs",
     preset: "dx",
   },
+  {
+    id: "lazygit",
+    name: "lazygit",
+    package: "lazygit",
+    installMethod: "brew",
+    verify: "lazygit --version",
+    description: "TUI git client",
+    preset: "dx",
+  },
+  {
+    id: "dust",
+    name: "dust",
+    package: "dust",
+    installMethod: "brew",
+    verify: "dust --version",
+    description: "Disk usage tree",
+    preset: "dx",
+  },
+  {
+    id: "btm",
+    name: "bottom",
+    package: "bottom",
+    installMethod: "brew",
+    verify: "btm --version",
+    description: "System monitor TUI",
+    preset: "dx",
+  },
 
   // ── Security ──────────────────────────────────────────
   {
@@ -321,6 +385,15 @@ export const TOOLS: Tool[] = [
     installMethod: "brew",
     verify: "act --version",
     description: "Run GitHub Actions locally",
+    preset: "security",
+  },
+  {
+    id: "gitleaks",
+    name: "gitleaks",
+    package: "gitleaks",
+    installMethod: "brew",
+    verify: "gitleaks version",
+    description: "Secrets scanner",
     preset: "security",
   },
 ];

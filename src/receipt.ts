@@ -16,7 +16,7 @@ export async function readReceipt(): Promise<Receipt | null> {
     if (err instanceof SyntaxError) {
       console.log(
         chalk.yellow(
-          "  Warning: ~/.agent-starter/receipt.json is corrupted. Ignoring.",
+          "  Warning: ~/.agent-loadout/receipt.json is corrupted. Ignoring.",
         ),
       );
     }

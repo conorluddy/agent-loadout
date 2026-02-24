@@ -11,7 +11,7 @@ export async function checkNpmInstalled(): Promise<boolean> {
   }
 }
 
-export function getNpmTools(tools: Tool[]): Tool[] {
+function getNpmTools(tools: Tool[]): Tool[] {
   return tools.filter((t) => t.installMethod === "npm");
 }
 
