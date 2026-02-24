@@ -6,6 +6,9 @@
 npx agent-loadout
 ```
 
+<img width="1536" height="1024" alt="One command to load out your terminal for agentic coding." src="https://github.com/user-attachments/assets/7490564f-0e24-479e-b8d8-1fb0bb468267" />
+
+
 ## Why this exists
 
 AI coding agents are only as good as the tools on the machine. A fresh Mac has few of them. `agent-loadout` installs a curated set of 37 terminal tools — the ones that actually matter for agentic workflows.
