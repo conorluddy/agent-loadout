@@ -12,7 +12,9 @@ export type VerifyResult = {
 async function checkTool(tool: Tool): Promise<VerifyResult> {
   try {
     const [cmd, ...args] = tool.verify.split(" ");
-    const result = await execa(cmd, args, { timeout: 5000 });
+    const brewPath = "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin";
+    const env = { ...process.env, PATH: `${brewPath}:${process.env.PATH}` };
+    const result = await execa(cmd, args, { timeout: 5000, env });
     const version = result.stdout.split("\n")[0].trim();
     return { id: tool.id, name: tool.name, installed: true, version };
   } catch {
