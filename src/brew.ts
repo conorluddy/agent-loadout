@@ -1,5 +1,6 @@
 import { writeFile } from "node:fs/promises";
 import { execa } from "execa";
+import chalk from "chalk";
 import { paths, ensureDir } from "./paths.js";
 import type { Tool } from "./catalog.js";
 
@@ -25,8 +26,18 @@ export async function writeBrewfile(content: string): Promise<void> {
   await writeFile(paths.brewfile, content);
 }
 
-export async function runBrewBundle(): Promise<void> {
-  await execa("brew", ["bundle", "--file", paths.brewfile, "--no-lock"], {
-    stdio: "inherit",
-  });
+export async function runBrewBundle(): Promise<boolean> {
+  try {
+    await execa("brew", ["bundle", "--file", paths.brewfile, "--no-lock"], {
+      stdio: "inherit",
+    });
+    return true;
+  } catch {
+    console.log(
+      chalk.yellow(
+        "\n  Some brew packages may have failed to install. Run 'brew bundle --file ~/.agent-starter/Brewfile' to retry.",
+      ),
+    );
+    return false;
+  }
 }

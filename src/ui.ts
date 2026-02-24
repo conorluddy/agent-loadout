@@ -4,6 +4,7 @@ import { PRESETS, TOOLS, getToolsByPreset } from "./catalog.js";
 import type { PresetId, Tool } from "./catalog.js";
 import { generateBrewfile } from "./brew.js";
 import { getNpmInstallCommand } from "./npm.js";
+import { verifyTools } from "./verify.js";
 
 export async function selectPresets(): Promise<PresetId[]> {
   return checkbox({
@@ -19,13 +20,24 @@ export async function selectPresets(): Promise<PresetId[]> {
 export async function selectTools(presetIds: PresetId[]): Promise<Tool[]> {
   const available = presetIds.flatMap(getToolsByPreset);
 
+  // Quick check which tools are already installed
+  const status = await verifyTools(available);
+  const installedIds = new Set(
+    status.filter((r) => r.installed).map((r) => r.id),
+  );
+
   const selectedIds = await checkbox({
     message: "Toggle individual tools (all selected by default)",
-    choices: available.map((t) => ({
-      name: `${t.name} — ${chalk.dim(t.description)}`,
-      value: t.id,
-      checked: true,
-    })),
+    choices: available.map((t) => {
+      const badge = installedIds.has(t.id)
+        ? chalk.green(" (installed)")
+        : "";
+      return {
+        name: `${t.name}${badge} — ${chalk.dim(t.description)}`,
+        value: t.id,
+        checked: true,
+      };
+    }),
   });
 
   return TOOLS.filter((t) => selectedIds.includes(t.id));

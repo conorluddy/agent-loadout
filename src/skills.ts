@@ -1,4 +1,4 @@
-import { writeFile, unlink } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { paths, ensureSkillsDir } from "./paths.js";
 import type { Tool } from "./catalog.js";
@@ -19,14 +19,6 @@ export async function writeSkills(tools: Tool[]): Promise<number> {
     written++;
   }
   return written;
-}
-
-export async function removeSkill(toolId: string): Promise<void> {
-  try {
-    await unlink(skillPath(toolId));
-  } catch {
-    // already gone
-  }
 }
 
 // ── Skill content per tool ──────────────────────────────
@@ -158,6 +150,28 @@ Supports \`--json\` on most commands for structured output. E.g. \`gh pr list --
 - \`gh api\` is very powerful for anything not covered by built-in commands.
 `,
 
+  shellcheck: `
+# shellcheck — Static analysis for shell scripts
+
+## When to use
+Lint shell scripts (bash, sh, dash) for common mistakes: quoting issues, unset variables, deprecated syntax, portability problems. Agents frequently generate shell scripts — shellcheck catches errors before they run.
+
+## Trusted commands
+- Check a script: \`shellcheck script.sh\`
+- Check with specific shell: \`shellcheck --shell=bash script.sh\`
+- JSON output: \`shellcheck --format=json script.sh\`
+- GCC-style output: \`shellcheck --format=gcc script.sh\`
+- Exclude specific rules: \`shellcheck --exclude=SC2034 script.sh\`
+- Check from stdin: \`echo '#!/bin/bash' | shellcheck -\`
+
+## Output format
+Default output is human-readable with line numbers and fix suggestions. Use \`--format=json\` for structured output.
+
+## Gotchas
+- Scripts need a shebang (\`#!/bin/bash\`) or use \`--shell=\` flag.
+- SC codes (e.g. SC2086) link to detailed wiki explanations.
+`,
+
   "ast-grep": `
 # ast-grep (sg) — Structural code search/replace
 
@@ -246,13 +260,13 @@ Find and replace in files. Like sed but with intuitive syntax — no escaping ni
 
 ## Trusted commands
 - Replace in file: \`sd 'old' 'new' file.ts\`
-- Preview (dry run, pipe from stdin): \`cat file.ts | sd 'old' 'new'\`
+- Preview changes: \`sd -p 'old' 'new' file.ts\`
 - Regex replace: \`sd 'v(\\d+)' 'version-$1' file.txt\`
 - Replace across files (with fd): \`fd -e ts -x sd 'old' 'new' {}\`
 
 ## Gotchas
 - Uses regex by default. Use \`-F\` for fixed/literal strings.
-- Modifies files in place when given a filename. Pipe through stdin for preview.
+- Modifies files in place when given a filename. Use \`-p\` to preview first.
 `,
 
   hyperfine: `

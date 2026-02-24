@@ -1,4 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
+import chalk from "chalk";
 import { paths, ensureDir } from "./paths.js";
 
 export type Receipt = {
@@ -11,7 +12,14 @@ export async function readReceipt(): Promise<Receipt | null> {
   try {
     const raw = await readFile(paths.receipt, "utf-8");
     return JSON.parse(raw) as Receipt;
-  } catch {
+  } catch (err) {
+    if (err instanceof SyntaxError) {
+      console.log(
+        chalk.yellow(
+          "  Warning: ~/.agent-starter/receipt.json is corrupted. Ignoring.",
+        ),
+      );
+    }
     return null;
   }
 }

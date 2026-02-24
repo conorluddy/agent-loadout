@@ -8,7 +8,11 @@ import {
   writeBrewfile,
   runBrewBundle,
 } from "./brew.js";
-import { getNpmInstallCommand, runNpmInstall } from "./npm.js";
+import {
+  checkNpmInstalled,
+  getNpmInstallCommand,
+  runNpmInstall,
+} from "./npm.js";
 import {
   verifyTools,
   printVerifyResults,
@@ -30,6 +34,12 @@ program
   .description("A curated CLI toolbelt for agentic coding workflows")
   .version("0.1.0");
 
+// Handle Ctrl+C gracefully
+process.on("SIGINT", () => {
+  console.log(chalk.dim("\n  Cancelled."));
+  process.exit(0);
+});
+
 // ── Default command: install ────────────────────────────
 
 program
@@ -44,7 +54,9 @@ program
     if (!hasBrew) {
       console.log(chalk.red("Homebrew is required but not installed."));
       console.log(
-        chalk.dim("Install it: https://brew.sh  →  /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""),
+        chalk.dim(
+          'Install it: https://brew.sh  →  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"',
+        ),
       );
       process.exit(1);
     }
@@ -55,13 +67,12 @@ program
       tools = TOOLS;
     } else if (opts.preset) {
       const presetIds = opts.preset as PresetId[];
-      const valid = presetIds.every((p) =>
-        PRESETS.some((preset) => preset.id === p),
-      );
-      if (!valid) {
+      const validIds = PRESETS.map((p) => p.id);
+      const invalid = presetIds.filter((p) => !validIds.includes(p));
+      if (invalid.length > 0) {
         console.log(
           chalk.red(
-            `Invalid preset. Available: ${PRESETS.map((p) => p.id).join(", ")}`,
+            `Unknown preset${invalid.length > 1 ? "s" : ""}: ${invalid.map((p) => `'${p}'`).join(", ")}. Available: ${validIds.join(", ")}`,
           ),
         );
         process.exit(1);
@@ -106,6 +117,19 @@ program
       }
     }
 
+    // Check npm if needed
+    const npmPackages = getNpmInstallCommand(tools);
+    if (npmPackages.length > 0) {
+      const hasNpm = await checkNpmInstalled();
+      if (!hasNpm) {
+        console.log(
+          chalk.yellow(
+            `npm is required for: ${npmPackages.join(", ")}. Skipping npm packages (install Node.js to include them).`,
+          ),
+        );
+      }
+    }
+
     // Install
     console.log();
     const brewfile = generateBrewfile(tools);
@@ -115,8 +139,7 @@ program
       await runBrewBundle();
     }
 
-    const npmPackages = getNpmInstallCommand(tools);
-    if (npmPackages.length > 0) {
+    if (npmPackages.length > 0 && (await checkNpmInstalled())) {
       console.log(chalk.bold("Installing npm globals..."));
       await runNpmInstall(npmPackages);
     }
@@ -130,7 +153,9 @@ program
     // Write skills
     const skillCount = await writeSkills(tools);
     if (skillCount > 0) {
-      console.log(chalk.dim(`\n  ${skillCount} skill files written to ~/.claude/skills/`));
+      console.log(
+        chalk.dim(`\n  ${skillCount} skill files written to ~/.claude/skills/`),
+      );
     }
 
     // Write receipt
@@ -155,14 +180,26 @@ program
     const tools = getToolsByIds(toolIds);
 
     const results = await verifyTools(tools);
+    const installed = results.filter((r) => r.installed).length;
+    const allInstalled = installed === results.length;
 
     if (opts.json) {
-      console.log(JSON.stringify(results, null, 2));
+      console.log(
+        JSON.stringify(
+          {
+            ok: allInstalled,
+            installed,
+            total: results.length,
+            tools: results,
+          },
+          null,
+          2,
+        ),
+      );
     } else {
       printVerifyResults(results);
     }
 
-    const allInstalled = results.every((r) => r.installed);
     process.exit(allInstalled ? 0 : 1);
   });
 
@@ -180,11 +217,17 @@ program
 
     for (const preset of PRESETS) {
       const marker = preset.defaultOn ? chalk.green("●") : chalk.dim("○");
-      console.log(`\n${marker} ${chalk.bold(preset.name)} — ${preset.description}`);
-      const tools = TOOLS.filter((t) => t.preset === preset.id);
-      for (const t of tools) {
-        const method = t.installMethod === "npm" ? chalk.cyan("npm") : chalk.yellow("brew");
-        console.log(`    ${t.name.padEnd(14)} ${method}  ${chalk.dim(t.description)}`);
+      console.log(
+        `\n${marker} ${chalk.bold(preset.name)} — ${preset.description}`,
+      );
+      const presetTools = TOOLS.filter((t) => t.preset === preset.id);
+      const maxName = Math.max(...presetTools.map((t) => t.name.length));
+      for (const t of presetTools) {
+        const method =
+          t.installMethod === "npm" ? chalk.cyan("npm") : chalk.yellow("brew");
+        console.log(
+          `    ${t.name.padEnd(maxName)}  ${method}  ${chalk.dim(t.description)}`,
+        );
       }
     }
     console.log();

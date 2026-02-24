@@ -13,6 +13,7 @@ brew "gh"
 brew "fzf"
 
 # Agent (tools that improve LLM workflows)
+brew "shellcheck"
 brew "ast-grep"
 brew "just"
 brew "grex"

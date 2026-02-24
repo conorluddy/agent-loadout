@@ -129,6 +129,15 @@ export const TOOLS: Tool[] = [
 
   // ── Agent ─────────────────────────────────────────────
   {
+    id: "shellcheck",
+    name: "shellcheck",
+    package: "shellcheck",
+    installMethod: "brew",
+    verify: "shellcheck --version",
+    description: "Static analysis for shell scripts",
+    preset: "agent",
+  },
+  {
     id: "ast-grep",
     name: "ast-grep",
     package: "ast-grep",
