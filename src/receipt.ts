@@ -1,8 +1,10 @@
 import { readFile, writeFile } from "node:fs/promises";
 import chalk from "chalk";
 import { paths, ensureDir } from "./paths.js";
+import type { Platform } from "./platform.js";
 
 export type Receipt = {
+  platform: Platform;
   selections: string[];
   installed: Record<string, string>;
   timestamp: string;

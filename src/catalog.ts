@@ -1,13 +1,19 @@
-export type InstallMethod = "brew" | "npm";
+import type { Platform, PackageManager } from "./platform.js";
+
+export type PlatformInstall = {
+  method: PackageManager;
+  package: string;
+};
 
 export type Tool = {
   id: string;
   name: string;
-  package: string;
-  installMethod: InstallMethod;
-  verify: string;
   description: string;
   preset: PresetId;
+  /** string = same command on every platform */
+  verify: string | Partial<Record<Platform, string>>;
+  /** null = unavailable on this platform; array = try in order, first available manager wins */
+  install: Record<Platform, PlatformInstall[] | null>;
 };
 
 export type PresetId = "core" | "agent" | "media" | "dx" | "security";
@@ -52,468 +58,586 @@ export const PRESETS: Preset[] = [
   },
 ];
 
+// === FACTORY HELPERS ===
+
+/** Same package name on brew (mac), apt (linux), scoop (win) */
+function universal(pkg: string): Record<Platform, PlatformInstall[]> {
+  return {
+    darwin: [{ method: "brew", package: pkg }],
+    linux: [{ method: "apt", package: pkg }],
+    win32: [{ method: "scoop", package: pkg }],
+  };
+}
+
+/** brew on mac, scoop on win, custom entries on linux */
+function brewScoop(
+  pkg: string,
+  linux: PlatformInstall[] | null,
+): Record<Platform, PlatformInstall[] | null> {
+  return {
+    darwin: [{ method: "brew", package: pkg }],
+    linux,
+    win32: [{ method: "scoop", package: pkg }],
+  };
+}
+
+/** brew on mac, scoop on win, apt then cargo fallback on linux */
+function brewScoopAptCargo(
+  pkg: string,
+  aptPkg: string,
+  cargoPkg: string,
+): Record<Platform, PlatformInstall[]> {
+  return {
+    darwin: [{ method: "brew", package: pkg }],
+    linux: [
+      { method: "apt", package: aptPkg },
+      { method: "cargo", package: cargoPkg },
+    ],
+    win32: [{ method: "scoop", package: pkg }],
+  };
+}
+
+/** brew on mac, scoop on win, cargo fallback on linux */
+function brewScoopCargo(
+  pkg: string,
+  cargoPkg: string,
+): Record<Platform, PlatformInstall[]> {
+  return {
+    darwin: [{ method: "brew", package: pkg }],
+    linux: [{ method: "cargo", package: cargoPkg }],
+    win32: [{ method: "scoop", package: pkg }],
+  };
+}
+
+/** npm everywhere */
+function npmAll(pkg: string): Record<Platform, PlatformInstall[]> {
+  return {
+    darwin: [{ method: "npm", package: pkg }],
+    linux: [{ method: "npm", package: pkg }],
+    win32: [{ method: "npm", package: pkg }],
+  };
+}
+
+// === TOOL CATALOG ===
+
 export const TOOLS: Tool[] = [
   // ── Core ──────────────────────────────────────────────
   {
     id: "rg",
     name: "ripgrep",
-    package: "ripgrep",
-    installMethod: "brew",
-    verify: "rg --version",
     description: "Fast code search",
     preset: "core",
+    verify: "rg --version",
+    install: brewScoopAptCargo("ripgrep", "ripgrep", "ripgrep"),
   },
   {
     id: "fd",
     name: "fd",
-    package: "fd",
-    installMethod: "brew",
-    verify: "fd --version",
     description: "Fast file finder",
     preset: "core",
+    verify: { darwin: "fd --version", linux: "fdfind --version", win32: "fd --version" },
+    install: {
+      darwin: [{ method: "brew", package: "fd" }],
+      linux: [{ method: "apt", package: "fd-find" }, { method: "cargo", package: "fd-find" }],
+      win32: [{ method: "scoop", package: "fd" }],
+    },
   },
   {
     id: "jq",
     name: "jq",
-    package: "jq",
-    installMethod: "brew",
-    verify: "jq --version",
     description: "JSON processor",
     preset: "core",
+    verify: "jq --version",
+    install: universal("jq"),
   },
   {
     id: "yq",
     name: "yq",
-    package: "yq",
-    installMethod: "brew",
-    verify: "yq --version",
     description: "YAML processor",
     preset: "core",
+    verify: "yq --version",
+    install: {
+      darwin: [{ method: "brew", package: "yq" }],
+      // TODO: gh-release installer — no apt/cargo package; scoop has it
+      linux: null,
+      win32: [{ method: "scoop", package: "yq" }],
+    },
   },
   {
     id: "bat",
     name: "bat",
-    package: "bat",
-    installMethod: "brew",
-    verify: "bat --version",
     description: "Cat with syntax highlighting",
     preset: "core",
+    verify: "bat --version",
+    install: {
+      darwin: [{ method: "brew", package: "bat" }],
+      linux: [
+        { method: "apt", package: "bat" },
+        { method: "cargo", package: "bat" },
+      ],
+      win32: [{ method: "scoop", package: "bat" }],
+    },
   },
   {
     id: "tree",
     name: "tree",
-    package: "tree",
-    installMethod: "brew",
-    verify: "tree --version",
     description: "Directory structure viewer",
     preset: "core",
+    verify: "tree --version",
+    install: universal("tree"),
   },
   {
     id: "gh",
     name: "GitHub CLI",
-    package: "gh",
-    installMethod: "brew",
-    verify: "gh --version",
     description: "GitHub CLI for PRs, issues, releases",
     preset: "core",
+    verify: "gh --version",
+    install: {
+      darwin: [{ method: "brew", package: "gh" }],
+      linux: [{ method: "apt", package: "gh" }],
+      win32: [{ method: "scoop", package: "gh" }],
+    },
   },
   {
     id: "fzf",
     name: "fzf",
-    package: "fzf",
-    installMethod: "brew",
-    verify: "fzf --version",
     description: "Fuzzy finder",
     preset: "core",
+    verify: "fzf --version",
+    install: universal("fzf"),
   },
-
   {
     id: "xh",
     name: "xh",
-    package: "xh",
-    installMethod: "brew",
-    verify: "xh --version",
     description: "Friendly HTTP client",
     preset: "core",
+    verify: "xh --version",
+    install: brewScoopCargo("xh", "xh"),
   },
 
   // ── Agent ─────────────────────────────────────────────
   {
     id: "shellcheck",
     name: "shellcheck",
-    package: "shellcheck",
-    installMethod: "brew",
-    verify: "shellcheck --version",
     description: "Static analysis for shell scripts",
     preset: "agent",
+    verify: "shellcheck --version",
+    install: universal("shellcheck"),
   },
   {
     id: "ast-grep",
     name: "ast-grep",
-    package: "ast-grep",
-    installMethod: "brew",
-    verify: "sg --version",
     description: "Structural code search/replace",
     preset: "agent",
+    verify: "sg --version",
+    install: {
+      darwin: [{ method: "brew", package: "ast-grep" }],
+      linux: [{ method: "cargo", package: "ast-grep" }],
+      win32: [{ method: "scoop", package: "ast-grep" }],
+    },
   },
   {
     id: "just",
     name: "just",
-    package: "just",
-    installMethod: "brew",
-    verify: "just --version",
     description: "Command runner (agent-readable task menu)",
     preset: "agent",
+    verify: "just --version",
+    install: brewScoopCargo("just", "just"),
   },
   {
     id: "grex",
     name: "grex",
-    package: "grex",
-    installMethod: "brew",
-    verify: "grex --version",
     description: "Generate regex from examples",
     preset: "agent",
+    verify: "grex --version",
+    install: brewScoopCargo("grex", "grex"),
   },
   {
     id: "knip",
     name: "knip",
-    package: "knip",
-    installMethod: "npm",
-    verify: "knip --version",
     description: "Find unused code/deps in TS/JS",
     preset: "agent",
+    verify: "knip --version",
+    install: npmAll("knip"),
   },
   {
     id: "sd",
     name: "sd",
-    package: "sd",
-    installMethod: "brew",
-    verify: "sd --version",
     description: "Simpler sed replacement",
     preset: "agent",
+    verify: "sd --version",
+    install: brewScoopCargo("sd", "sd"),
   },
   {
     id: "hyperfine",
     name: "hyperfine",
-    package: "hyperfine",
-    installMethod: "brew",
-    verify: "hyperfine --version",
     description: "CLI benchmarking",
     preset: "agent",
+    verify: "hyperfine --version",
+    install: brewScoopAptCargo("hyperfine", "hyperfine", "hyperfine"),
   },
   {
     id: "tokei",
     name: "tokei",
-    package: "tokei",
-    installMethod: "brew",
-    verify: "tokei --version",
     description: "Code statistics",
     preset: "agent",
+    verify: "tokei --version",
+    install: brewScoopCargo("tokei", "tokei"),
   },
   {
     id: "tldr",
     name: "tldr",
-    package: "tldr",
-    installMethod: "brew",
-    verify: "tldr --version",
     description: "Quick man page summaries",
     preset: "agent",
+    verify: "tldr --version",
+    install: universal("tldr"),
   },
   {
     id: "biome",
     name: "biome",
-    package: "biome",
-    installMethod: "brew",
-    verify: "biome --version",
     description: "Lint + format JS/TS",
     preset: "agent",
+    verify: "biome --version",
+    install: {
+      darwin: [{ method: "brew", package: "biome" }],
+      linux: [{ method: "npm", package: "@biomejs/biome" }],
+      win32: [{ method: "npm", package: "@biomejs/biome" }],
+    },
   },
   {
     id: "difftastic",
     name: "difftastic",
-    package: "difftastic",
-    installMethod: "brew",
-    verify: "difft --version",
     description: "Structural/AST diff",
     preset: "agent",
+    verify: "difft --version",
+    install: brewScoopCargo("difftastic", "difftastic"),
   },
   {
     id: "pandoc",
     name: "pandoc",
-    package: "pandoc",
-    installMethod: "brew",
-    verify: "pandoc --version",
     description: "Universal document converter",
     preset: "agent",
+    verify: "pandoc --version",
+    install: universal("pandoc"),
   },
   {
     id: "duckdb",
     name: "duckdb",
-    package: "duckdb",
-    installMethod: "brew",
-    verify: "duckdb --version",
     description: "SQL analytics on CSV/JSON/Parquet files",
     preset: "agent",
+    verify: "duckdb --version",
+    install: {
+      darwin: [{ method: "brew", package: "duckdb" }],
+      // TODO: gh-release installer — no reliable apt/cargo package
+      linux: null,
+      win32: [{ method: "scoop", package: "duckdb" }],
+    },
   },
   {
     id: "htmlq",
     name: "htmlq",
-    package: "htmlq",
-    installMethod: "brew",
-    verify: "htmlq --version",
     description: "Extract content from HTML using CSS selectors",
     preset: "agent",
+    verify: "htmlq --version",
+    install: brewScoopCargo("htmlq", "htmlq"),
   },
   {
     id: "typos",
     name: "typos",
-    package: "typos-cli",
-    installMethod: "brew",
-    verify: "typos --version",
     description: "Source code spell checker",
     preset: "agent",
+    verify: "typos --version",
+    install: {
+      darwin: [{ method: "brew", package: "typos-cli" }],
+      linux: [{ method: "cargo", package: "typos-cli" }],
+      win32: [{ method: "scoop", package: "typos" }],
+    },
   },
   {
     id: "gum",
     name: "gum",
-    package: "gum",
-    installMethod: "brew",
-    verify: "gum --version",
     description: "Interactive UI components for shell scripts",
     preset: "agent",
+    verify: "gum --version",
+    install: {
+      darwin: [{ method: "brew", package: "gum" }],
+      // TODO: gh-release installer — no apt/cargo package
+      linux: null,
+      win32: [{ method: "scoop", package: "gum" }],
+    },
   },
 
   // ── Media ─────────────────────────────────────────────
   {
     id: "ffmpeg",
     name: "ffmpeg",
-    package: "ffmpeg",
-    installMethod: "brew",
-    verify: "ffmpeg -version",
     description: "Audio/video Swiss army knife",
     preset: "media",
+    verify: "ffmpeg -version",
+    install: universal("ffmpeg"),
   },
   {
     id: "exiftool",
     name: "exiftool",
-    package: "exiftool",
-    installMethod: "brew",
-    verify: "exiftool -ver",
     description: "Image/media metadata",
     preset: "media",
+    verify: "exiftool -ver",
+    install: {
+      darwin: [{ method: "brew", package: "exiftool" }],
+      linux: [{ method: "apt", package: "libimage-exiftool-perl" }],
+      win32: [{ method: "scoop", package: "exiftool" }],
+    },
   },
   {
     id: "imagemagick",
     name: "ImageMagick",
-    package: "imagemagick",
-    installMethod: "brew",
-    verify: "magick -version",
     description: "Image transforms",
     preset: "media",
+    verify: "magick -version",
+    install: universal("imagemagick"),
   },
   {
     id: "svgo",
     name: "svgo",
-    package: "svgo",
-    installMethod: "npm",
-    verify: "svgo --version",
     description: "SVG optimiser",
     preset: "media",
+    verify: "svgo --version",
+    install: npmAll("svgo"),
   },
 
   // ── DX ────────────────────────────────────────────────
   {
     id: "eza",
     name: "eza",
-    package: "eza",
-    installMethod: "brew",
-    verify: "eza --version",
     description: "Modern ls replacement",
     preset: "dx",
+    verify: "eza --version",
+    install: brewScoopCargo("eza", "eza"),
   },
   {
     id: "zoxide",
     name: "zoxide",
-    package: "zoxide",
-    installMethod: "brew",
-    verify: "zoxide --version",
     description: "Smarter cd",
     preset: "dx",
+    verify: "zoxide --version",
+    install: brewScoopCargo("zoxide", "zoxide"),
   },
   {
     id: "delta",
     name: "delta",
-    package: "git-delta",
-    installMethod: "brew",
-    verify: "delta --version",
     description: "Better git diffs",
     preset: "dx",
+    verify: "delta --version",
+    install: {
+      darwin: [{ method: "brew", package: "git-delta" }],
+      linux: [{ method: "cargo", package: "git-delta" }],
+      win32: [{ method: "scoop", package: "delta" }],
+    },
   },
   {
     id: "glow",
     name: "glow",
-    package: "glow",
-    installMethod: "brew",
-    verify: "glow --version",
     description: "Terminal markdown renderer",
     preset: "dx",
+    verify: "glow --version",
+    install: {
+      darwin: [{ method: "brew", package: "glow" }],
+      // TODO: gh-release installer — no apt/cargo package
+      linux: null,
+      win32: [{ method: "scoop", package: "glow" }],
+    },
   },
   {
     id: "mise",
     name: "mise",
-    package: "mise",
-    installMethod: "brew",
-    verify: "mise --version",
     description: "Runtime version manager",
     preset: "dx",
+    verify: "mise --version",
+    install: {
+      darwin: [{ method: "brew", package: "mise" }],
+      // TODO: gh-release installer — curl script install preferred on Linux
+      linux: null,
+      win32: [{ method: "scoop", package: "mise" }],
+    },
   },
   {
     id: "watchexec",
     name: "watchexec",
-    package: "watchexec",
-    installMethod: "brew",
-    verify: "watchexec --version",
     description: "Run commands on file change",
     preset: "dx",
+    verify: "watchexec --version",
+    install: brewScoopCargo("watchexec", "watchexec"),
   },
   {
     id: "mkcert",
     name: "mkcert",
-    package: "mkcert",
-    installMethod: "brew",
-    verify: "mkcert --version",
     description: "Local HTTPS certs",
     preset: "dx",
+    verify: "mkcert --version",
+    install: {
+      darwin: [{ method: "brew", package: "mkcert" }],
+      // TODO: gh-release installer — no apt/cargo package
+      linux: null,
+      win32: [{ method: "scoop", package: "mkcert" }],
+    },
   },
   {
     id: "lazygit",
     name: "lazygit",
-    package: "lazygit",
-    installMethod: "brew",
-    verify: "lazygit --version",
     description: "TUI git client",
     preset: "dx",
+    verify: "lazygit --version",
+    install: {
+      darwin: [{ method: "brew", package: "lazygit" }],
+      // TODO: gh-release installer — no apt/cargo package
+      linux: null,
+      win32: [{ method: "scoop", package: "lazygit" }],
+    },
   },
   {
     id: "dust",
     name: "dust",
-    package: "dust",
-    installMethod: "brew",
-    verify: "dust --version",
     description: "Disk usage tree",
     preset: "dx",
+    verify: "dust --version",
+    install: brewScoopCargo("dust", "du-dust"),
   },
   {
     id: "btm",
     name: "bottom",
-    package: "bottom",
-    installMethod: "brew",
-    verify: "btm --version",
     description: "System monitor TUI",
     preset: "dx",
+    verify: "btm --version",
+    install: {
+      darwin: [{ method: "brew", package: "bottom" }],
+      linux: [{ method: "cargo", package: "bottom" }],
+      win32: [{ method: "scoop", package: "bottom" }],
+    },
   },
   {
     id: "direnv",
     name: "direnv",
-    package: "direnv",
-    installMethod: "brew",
-    verify: "direnv version",
     description: "Auto-load env vars per directory",
     preset: "dx",
+    verify: "direnv version",
+    install: universal("direnv"),
   },
   {
     id: "procs",
     name: "procs",
-    package: "procs",
-    installMethod: "brew",
-    verify: "procs --version",
     description: "Modern ps replacement with search",
     preset: "dx",
+    verify: "procs --version",
+    install: brewScoopCargo("procs", "procs"),
   },
   {
     id: "uv",
     name: "uv",
-    package: "uv",
-    installMethod: "brew",
-    verify: "uv --version",
     description: "Fast Python package and env manager",
     preset: "dx",
+    verify: "uv --version",
+    install: {
+      darwin: [{ method: "brew", package: "uv" }],
+      linux: [{ method: "cargo", package: "uv" }],
+      win32: [{ method: "scoop", package: "uv" }],
+    },
   },
   {
     id: "hexyl",
     name: "hexyl",
-    package: "hexyl",
-    installMethod: "brew",
-    verify: "hexyl --version",
     description: "Hex viewer with colour coding",
     preset: "dx",
+    verify: "hexyl --version",
+    install: brewScoopCargo("hexyl", "hexyl"),
   },
   {
     id: "taplo",
     name: "taplo",
-    package: "taplo",
-    installMethod: "brew",
-    verify: "taplo --version",
     description: "TOML toolkit (lint, format, query)",
     preset: "dx",
+    verify: "taplo --version",
+    install: brewScoopCargo("taplo", "taplo-cli"),
   },
 
   // ── Security ──────────────────────────────────────────
   {
     id: "trivy",
     name: "trivy",
-    package: "trivy",
-    installMethod: "brew",
-    verify: "trivy --version",
     description: "Vulnerability scanner",
     preset: "security",
+    verify: "trivy --version",
+    install: {
+      darwin: [{ method: "brew", package: "trivy" }],
+      linux: [{ method: "apt", package: "trivy" }],
+      win32: [{ method: "scoop", package: "trivy" }],
+    },
   },
   {
     id: "act",
     name: "act",
-    package: "act",
-    installMethod: "brew",
-    verify: "act --version",
     description: "Run GitHub Actions locally",
     preset: "security",
+    verify: "act --version",
+    install: {
+      darwin: [{ method: "brew", package: "act" }],
+      // TODO: gh-release installer — no apt/cargo package
+      linux: null,
+      win32: [{ method: "scoop", package: "act" }],
+    },
   },
   {
     id: "gitleaks",
     name: "gitleaks",
-    package: "gitleaks",
-    installMethod: "brew",
-    verify: "gitleaks version",
     description: "Secrets scanner",
     preset: "security",
+    verify: "gitleaks version",
+    install: {
+      darwin: [{ method: "brew", package: "gitleaks" }],
+      // TODO: gh-release installer — no apt/cargo package
+      linux: null,
+      win32: [{ method: "scoop", package: "gitleaks" }],
+    },
   },
   {
     id: "semgrep",
     name: "semgrep",
-    package: "semgrep",
-    installMethod: "brew",
-    verify: "semgrep --version",
     description: "Multi-language static analysis",
     preset: "security",
+    verify: "semgrep --version",
+    install: {
+      darwin: [{ method: "brew", package: "semgrep" }],
+      linux: [{ method: "apt", package: "semgrep" }],
+      win32: null, // not available on Windows
+    },
   },
   {
     id: "age",
     name: "age",
-    package: "age",
-    installMethod: "brew",
-    verify: "age --version",
     description: "Simple file encryption",
     preset: "security",
+    verify: "age --version",
+    install: {
+      darwin: [{ method: "brew", package: "age" }],
+      linux: [{ method: "apt", package: "age" }, { method: "cargo", package: "rage" }],
+      win32: [{ method: "scoop", package: "age" }],
+    },
   },
   {
     id: "doggo",
     name: "doggo",
-    package: "doggo",
-    installMethod: "brew",
-    verify: "doggo --version",
     description: "Modern DNS client with JSON output",
     preset: "security",
+    verify: "doggo --version",
+    install: {
+      darwin: [{ method: "brew", package: "doggo" }],
+      // TODO: gh-release installer — no apt package; cargo crate not maintained
+      linux: null,
+      win32: [{ method: "scoop", package: "doggo" }],
+    },
   },
 ];
+
+// === QUERY HELPERS ===
 
 export function getToolsByPreset(presetId: PresetId): Tool[] {
   return TOOLS.filter((t) => t.preset === presetId);
@@ -531,4 +655,29 @@ export function validateToolIds(ids: string[]): { valid: string[]; invalid: stri
     (knownIds.has(id) ? valid : invalid).push(id);
   }
   return { valid, invalid };
+}
+
+/** Generate root Brewfile content from darwin entries in the catalog. */
+export function generateBrewfileFromCatalog(): string {
+  const lines = [
+    "# Auto-generated from catalog.ts — macOS only. Run: pnpm brewfile",
+    "# Do not edit manually.",
+    "",
+  ];
+
+  for (const preset of PRESETS) {
+    const tools = getToolsByPreset(preset.id);
+    const brewTools = tools.flatMap((t) => t.install.darwin ?? []).filter(
+      (pi) => pi.method === "brew",
+    );
+    if (brewTools.length === 0) continue;
+
+    lines.push(`# ${preset.name}`);
+    for (const pi of brewTools) {
+      lines.push(`brew "${pi.package}"`);
+    }
+    lines.push("");
+  }
+
+  return lines.join("\n");
 }

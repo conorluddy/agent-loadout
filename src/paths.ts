@@ -12,7 +12,9 @@ const SKILL_TARGETS: Record<string, string> = {
 export const paths = {
   base: BASE_DIR,
   receipt: join(BASE_DIR, "receipt.json"),
-  brewfile: join(BASE_DIR, "Brewfile"),
+  /** null on non-darwin platforms */
+  brewfile: process.platform === "darwin" ? join(BASE_DIR, "Brewfile") : null,
+  localBin: join(homedir(), ".local", "bin"),
   skillTargets: SKILL_TARGETS,
   genericSkills: GENERIC_SKILLS,
 };
