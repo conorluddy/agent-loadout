@@ -13,6 +13,7 @@
     "dev": "tsx src/index.ts",
     "build": "tsup",
     "typecheck": "tsc --noEmit",
+    "brewfile": "tsx scripts/generate-brewfile.ts",
     "prepack": "pnpm build && pnpm typecheck",
     "version": "pnpm build && git add -A dist"
   },
