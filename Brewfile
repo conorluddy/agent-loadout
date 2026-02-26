@@ -1,6 +1,5 @@
-# agent-loadout — default toolbelt
-# Run: brew bundle
-# Or use the interactive installer: npx agent-loadout
+# Auto-generated from catalog.ts — macOS only. Run: pnpm brewfile
+# Do not edit manually.
 
 # Core
 brew "ripgrep"
@@ -13,7 +12,7 @@ brew "gh"
 brew "fzf"
 brew "xh"
 
-# Agent (tools that improve LLM workflows)
+# Agent
 brew "shellcheck"
 brew "ast-grep"
 brew "just"
@@ -30,32 +29,32 @@ brew "htmlq"
 brew "typos-cli"
 brew "gum"
 
-# Media (uncomment if needed)
-# brew "ffmpeg"
-# brew "exiftool"
-# brew "imagemagick"
+# Media
+brew "ffmpeg"
+brew "exiftool"
+brew "imagemagick"
 
-# DX (uncomment if needed)
-# brew "eza"
-# brew "zoxide"
-# brew "git-delta"
-# brew "glow"
-# brew "mise"
-# brew "watchexec"
-# brew "mkcert"
-# brew "lazygit"
-# brew "dust"
-# brew "bottom"
-# brew "direnv"
-# brew "procs"
-# brew "uv"
-# brew "hexyl"
-# brew "taplo"
+# DX
+brew "eza"
+brew "zoxide"
+brew "git-delta"
+brew "glow"
+brew "mise"
+brew "watchexec"
+brew "mkcert"
+brew "lazygit"
+brew "dust"
+brew "bottom"
+brew "direnv"
+brew "procs"
+brew "uv"
+brew "hexyl"
+brew "taplo"
 
-# Security (uncomment if needed)
-# brew "trivy"
-# brew "act"
-# brew "gitleaks"
-# brew "semgrep"
-# brew "age"
-# brew "doggo"
+# Security
+brew "trivy"
+brew "act"
+brew "gitleaks"
+brew "semgrep"
+brew "age"
+brew "doggo"

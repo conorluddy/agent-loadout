@@ -11,7 +11,7 @@ npx agent-loadout
 
 ## Why this exists
 
-AI coding agents are only as good as the tools on the machine. A fresh Mac has few of them. `agent-loadout` installs a curated set of 50 terminal tools — the ones that actually matter for agentic workflows.
+AI coding agents are only as good as the tools on the machine. A fresh macOS, Linux, or Windows install has few of them. `agent-loadout` installs a curated set of 50 terminal tools — the ones that actually matter for agentic workflows.
 
 Pick presets, toggle individual tools, and get a verified installation with skill files your agent can read.
 
@@ -96,8 +96,8 @@ Pick presets, toggle individual tools, and get a verified installation with skil
 
 1. **Choose presets** — Core and Agent are on by default; toggle Media, DX, Security
 2. **Toggle tools** — Deselect anything you don't want
-3. **Preview** — See the exact Brewfile and npm commands before anything runs
-4. **Install** — Runs `brew bundle` and `npm install -g` for you
+3. **Preview** — See the exact install commands before anything runs (brew/apt/scoop/cargo/npm per platform)
+4. **Install** — Runs the right installer for your OS automatically
 5. **Verify** — Checks every tool is actually working
 6. **Persist** — Writes a receipt and skill files your AI agent can read
 
@@ -129,11 +129,14 @@ npx agent-loadout verify --json
 # List the full catalog
 npx agent-loadout list
 npx agent-loadout list --json
+
+# Print a generated Brewfile (macOS only)
+npx agent-loadout list --brewfile
 ```
 
-## Brewfile alternative
+## Brewfile alternative (macOS)
 
-Don't want the CLI? Copy the [Brewfile](./Brewfile), uncomment what you need, and run:
+Don't want the CLI? Copy the [Brewfile](./Brewfile) (macOS only, auto-generated from the catalog) and run:
 
 ```sh
 brew bundle
@@ -150,16 +153,19 @@ Each skill is a focused playbook — what the tool does, trusted commands, gotch
 
 ## Requirements
 
-- macOS with [Homebrew](https://brew.sh) installed
 - Node.js 20+ (for `npx`)
-- npm (optional, only needed for knip and svgo)
+- **macOS** — [Homebrew](https://brew.sh) required
+- **Linux** — `apt-get` recommended; `cargo` used as fallback for Rust tools
+- **Windows** — [Scoop](https://scoop.sh) recommended
+
+A small number of tools are macOS/Windows-only and will be shown as skipped on platforms where no package exists.
 
 ## Contributing
 
 1. Fork and clone
 2. `pnpm install`
 3. `pnpm dev -- list` to run locally
-4. Add tools in `src/catalog.ts`, skills in `src/skills.ts`
+4. Add tools in `src/catalog.ts` (per-platform install maps), add a skill file in `src/skills/`
 5. `pnpm typecheck` before submitting
 
 ### Releasing

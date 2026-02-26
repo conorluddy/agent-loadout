@@ -1,6 +1,6 @@
 {
   "name": "agent-loadout",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "One command to load out your terminal for agentic coding",
   "type": "module",
   "bin": {
@@ -13,6 +13,7 @@
     "dev": "tsx src/index.ts",
     "build": "tsup",
     "typecheck": "tsc --noEmit",
+    "brewfile": "tsx scripts/generate-brewfile.ts",
     "prepack": "pnpm build && pnpm typecheck",
     "version": "pnpm build && git add -A dist"
   },

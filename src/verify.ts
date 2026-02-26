@@ -1,6 +1,8 @@
 import { execa } from "execa";
 import chalk from "chalk";
 import type { Tool } from "./catalog.js";
+import type { Platform } from "./platform.js";
+import { getVerifyCommand } from "./resolve.js";
 
 export type VerifyResult = {
   id: string;
@@ -9,12 +11,32 @@ export type VerifyResult = {
   version: string;
 };
 
-async function checkTool(tool: Tool): Promise<VerifyResult> {
+function getExtraPaths(platform: Platform): string {
+  if (platform === "darwin") {
+    return "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin";
+  }
+  if (platform === "linux") {
+    const home = process.env.HOME ?? "";
+    return `${home}/.local/bin:${home}/.cargo/bin`;
+  }
+  if (platform === "win32") {
+    const userProfile = process.env.USERPROFILE ?? "";
+    return `${userProfile}\\scoop\\shims:${userProfile}\\.cargo\\bin`;
+  }
+  return "";
+}
+
+async function checkTool(tool: Tool, platform: Platform): Promise<VerifyResult> {
   try {
-    const [cmd, ...args] = tool.verify.split(" ");
-    const brewPath = "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin";
-    const env = { ...process.env, PATH: `${brewPath}:${process.env.PATH}` };
-    const result = await execa(cmd, args, { timeout: 5000, env });
+    const cmd = getVerifyCommand(tool, platform);
+    const [bin, ...args] = cmd.split(" ");
+    const extraPaths = getExtraPaths(platform);
+    const pathSep = platform === "win32" ? ";" : ":";
+    const env = {
+      ...process.env,
+      PATH: `${extraPaths}${pathSep}${process.env.PATH}`,
+    };
+    const result = await execa(bin, args, { timeout: 5000, env });
     const version = result.stdout.split("\n")[0].trim();
     return { id: tool.id, name: tool.name, installed: true, version };
   } catch {
@@ -22,8 +44,11 @@ async function checkTool(tool: Tool): Promise<VerifyResult> {
   }
 }
 
-export async function verifyTools(tools: Tool[]): Promise<VerifyResult[]> {
-  return Promise.all(tools.map(checkTool));
+export async function verifyTools(
+  tools: Tool[],
+  platform: Platform = process.platform as Platform,
+): Promise<VerifyResult[]> {
+  return Promise.all(tools.map((t) => checkTool(t, platform)));
 }
 
 export function printVerifyResults(results: VerifyResult[]): void {
