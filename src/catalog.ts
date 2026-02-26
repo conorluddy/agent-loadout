@@ -237,6 +237,51 @@ export const TOOLS: Tool[] = [
     description: "Structural/AST diff",
     preset: "agent",
   },
+  {
+    id: "pandoc",
+    name: "pandoc",
+    package: "pandoc",
+    installMethod: "brew",
+    verify: "pandoc --version",
+    description: "Universal document converter",
+    preset: "agent",
+  },
+  {
+    id: "duckdb",
+    name: "duckdb",
+    package: "duckdb",
+    installMethod: "brew",
+    verify: "duckdb --version",
+    description: "SQL analytics on CSV/JSON/Parquet files",
+    preset: "agent",
+  },
+  {
+    id: "htmlq",
+    name: "htmlq",
+    package: "htmlq",
+    installMethod: "brew",
+    verify: "htmlq --version",
+    description: "Extract content from HTML using CSS selectors",
+    preset: "agent",
+  },
+  {
+    id: "typos",
+    name: "typos",
+    package: "typos-cli",
+    installMethod: "brew",
+    verify: "typos --version",
+    description: "Source code spell checker",
+    preset: "agent",
+  },
+  {
+    id: "gum",
+    name: "gum",
+    package: "gum",
+    installMethod: "brew",
+    verify: "gum --version",
+    description: "Interactive UI components for shell scripts",
+    preset: "agent",
+  },
 
   // ── Media ─────────────────────────────────────────────
   {
@@ -367,6 +412,51 @@ export const TOOLS: Tool[] = [
     description: "System monitor TUI",
     preset: "dx",
   },
+  {
+    id: "direnv",
+    name: "direnv",
+    package: "direnv",
+    installMethod: "brew",
+    verify: "direnv version",
+    description: "Auto-load env vars per directory",
+    preset: "dx",
+  },
+  {
+    id: "procs",
+    name: "procs",
+    package: "procs",
+    installMethod: "brew",
+    verify: "procs --version",
+    description: "Modern ps replacement with search",
+    preset: "dx",
+  },
+  {
+    id: "uv",
+    name: "uv",
+    package: "uv",
+    installMethod: "brew",
+    verify: "uv --version",
+    description: "Fast Python package and env manager",
+    preset: "dx",
+  },
+  {
+    id: "hexyl",
+    name: "hexyl",
+    package: "hexyl",
+    installMethod: "brew",
+    verify: "hexyl --version",
+    description: "Hex viewer with colour coding",
+    preset: "dx",
+  },
+  {
+    id: "taplo",
+    name: "taplo",
+    package: "taplo",
+    installMethod: "brew",
+    verify: "taplo --version",
+    description: "TOML toolkit (lint, format, query)",
+    preset: "dx",
+  },
 
   // ── Security ──────────────────────────────────────────
   {
@@ -396,6 +486,33 @@ export const TOOLS: Tool[] = [
     description: "Secrets scanner",
     preset: "security",
   },
+  {
+    id: "semgrep",
+    name: "semgrep",
+    package: "semgrep",
+    installMethod: "brew",
+    verify: "semgrep --version",
+    description: "Multi-language static analysis",
+    preset: "security",
+  },
+  {
+    id: "age",
+    name: "age",
+    package: "age",
+    installMethod: "brew",
+    verify: "age --version",
+    description: "Simple file encryption",
+    preset: "security",
+  },
+  {
+    id: "doggo",
+    name: "doggo",
+    package: "doggo",
+    installMethod: "brew",
+    verify: "doggo --version",
+    description: "Modern DNS client with JSON output",
+    preset: "security",
+  },
 ];
 
 export function getToolsByPreset(presetId: PresetId): Tool[] {
@@ -404,4 +521,14 @@ export function getToolsByPreset(presetId: PresetId): Tool[] {
 
 export function getToolsByIds(ids: string[]): Tool[] {
   return TOOLS.filter((t) => ids.includes(t.id));
+}
+
+export function validateToolIds(ids: string[]): { valid: string[]; invalid: string[] } {
+  const knownIds = new Set(TOOLS.map((t) => t.id));
+  const valid: string[] = [];
+  const invalid: string[] = [];
+  for (const id of ids) {
+    (knownIds.has(id) ? valid : invalid).push(id);
+  }
+  return { valid, invalid };
 }

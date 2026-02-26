@@ -1,6 +1,6 @@
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { paths, ensureSkillsDir } from "./paths.js";
+import { paths, ensureSkillDirs } from "./paths.js";
 import type { Tool } from "./catalog.js";
 
 import rg from "./skills/rg.js";
@@ -40,6 +40,19 @@ import lazygit from "./skills/lazygit.js";
 import dust from "./skills/dust.js";
 import btm from "./skills/btm.js";
 import gitleaks from "./skills/gitleaks.js";
+import pandoc from "./skills/pandoc.js";
+import duckdb from "./skills/duckdb.js";
+import htmlq from "./skills/htmlq.js";
+import typos from "./skills/typos.js";
+import gum from "./skills/gum.js";
+import direnv from "./skills/direnv.js";
+import procs from "./skills/procs.js";
+import uv from "./skills/uv.js";
+import hexyl from "./skills/hexyl.js";
+import taplo from "./skills/taplo.js";
+import semgrep from "./skills/semgrep.js";
+import age from "./skills/age.js";
+import doggo from "./skills/doggo.js";
 
 const PREFIX = "agent-loadout";
 
@@ -82,19 +95,36 @@ const SKILL_CONTENT: Record<string, string> = {
   dust,
   btm,
   gitleaks,
+  pandoc,
+  duckdb,
+  htmlq,
+  typos,
+  gum,
+  direnv,
+  procs,
+  uv,
+  hexyl,
+  taplo,
+  semgrep,
+  age,
+  doggo,
 };
 
-function skillPath(toolId: string): string {
-  return join(paths.skills, `${PREFIX}-${toolId}.md`);
+function skillFilename(toolId: string): string {
+  return `${PREFIX}-${toolId}.md`;
 }
 
 export async function writeSkills(tools: Tool[]): Promise<number> {
-  await ensureSkillsDir();
+  await ensureSkillDirs();
+  const allDirs = [...Object.values(paths.skillTargets), paths.genericSkills];
   let written = 0;
   for (const tool of tools) {
     const content = SKILL_CONTENT[tool.id];
     if (!content) continue;
-    await writeFile(skillPath(tool.id), content + "\n");
+    const filename = skillFilename(tool.id);
+    for (const dir of allDirs) {
+      await writeFile(join(dir, filename), content + "\n");
+    }
     written++;
   }
   return written;

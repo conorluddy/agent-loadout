@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import chalk from "chalk";
-import { PRESETS, TOOLS, getToolsByIds } from "./catalog.js";
+import { PRESETS, TOOLS, getToolsByIds, validateToolIds } from "./catalog.js";
 import type { PresetId } from "./catalog.js";
 import {
   checkBrewInstalled,
@@ -26,13 +26,14 @@ import {
   confirmInstall,
 } from "./ui.js";
 import { writeSkills } from "./skills.js";
+import { paths } from "./paths.js";
 
 const program = new Command();
 
 program
   .name("agent-loadout")
   .description("One command to load out your terminal for agentic coding")
-  .version("0.1.0");
+  .version("0.3.0");
 
 // Handle Ctrl+C gracefully
 process.on("SIGINT", () => {
@@ -46,6 +47,8 @@ program
   .command("install", { isDefault: true })
   .description("Install tools (interactive by default)")
   .option("--preset <presets...>", "Install specific presets without prompts")
+  .option("--tool <tools...>", "Install specific tools by ID")
+  .option("--skip <tools...>", "Exclude specific tools by ID")
   .option("--all", "Install everything")
   .option("--apply", "Actually run the install (default is preview only)")
   .action(async (opts) => {
@@ -63,7 +66,18 @@ program
 
     let tools;
 
-    if (opts.all) {
+    if (opts.tool) {
+      const { valid, invalid } = validateToolIds(opts.tool as string[]);
+      if (invalid.length > 0) {
+        console.log(
+          chalk.red(
+            `Unknown tool${invalid.length > 1 ? "s" : ""}: ${invalid.map((t) => `'${t}'`).join(", ")}. Run ${chalk.dim("agent-loadout list --json")} to see all tool IDs.`,
+          ),
+        );
+        process.exit(1);
+      }
+      tools = getToolsByIds(valid);
+    } else if (opts.all) {
       tools = TOOLS;
     } else if (opts.preset) {
       const rawIds = opts.preset as string[];
@@ -93,24 +107,37 @@ program
       }
     }
 
+    // Apply --skip filter
+    if (opts.skip) {
+      const skipSet = new Set(opts.skip as string[]);
+      tools = tools.filter((t) => !skipSet.has(t.id));
+      if (tools.length === 0) {
+        console.log(chalk.dim("All tools were skipped. Nothing to install."));
+        return;
+      }
+    }
+
     // Preview
     printPreview(tools);
 
     // Non-interactive modes need --apply
-    if (!opts.apply && (opts.all || opts.preset)) {
+    if (!opts.apply && (opts.all || opts.preset || opts.tool)) {
+      const parts: string[] = [];
+      if (opts.tool) parts.push(`--tool ${(opts.tool as string[]).join(" ")}`);
+      else if (opts.all) parts.push("--all");
+      else parts.push(`--preset ${(opts.preset as string[]).join(" ")}`);
+      if (opts.skip) parts.push(`--skip ${(opts.skip as string[]).join(" ")}`);
       console.log(
         chalk.yellow("Dry run — add --apply to install. Example:"),
       );
       console.log(
-        chalk.dim(
-          `  npx agent-loadout install ${opts.all ? "--all" : `--preset ${(opts.preset as string[]).join(" ")}`} --apply`,
-        ),
+        chalk.dim(`  npx agent-loadout install ${parts.join(" ")} --apply`),
       );
       return;
     }
 
     // Interactive mode: ask to confirm
-    if (!opts.all && !opts.preset) {
+    if (!opts.all && !opts.preset && !opts.tool) {
       const proceed = await confirmInstall();
       if (!proceed) {
         console.log(chalk.dim("Cancelled."));
@@ -154,8 +181,9 @@ program
     // Write skills
     const skillCount = await writeSkills(tools);
     if (skillCount > 0) {
+      const targets = Object.keys(paths.skillTargets).join(", ");
       console.log(
-        chalk.dim(`\n  ${skillCount} skill files written to ~/.claude/skills/`),
+        chalk.dim(`\n  ${skillCount} skill files written to ${targets} + ~/.agent-loadout/skills/`),
       );
     }
 
