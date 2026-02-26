@@ -11,7 +11,7 @@ npx agent-loadout
 
 ## Why this exists
 
-AI coding agents are only as good as the tools on the machine. A fresh Mac has few of them. `agent-loadout` installs a curated set of 37 terminal tools — the ones that actually matter for agentic workflows.
+AI coding agents are only as good as the tools on the machine. A fresh Mac has few of them. `agent-loadout` installs a curated set of 50 terminal tools — the ones that actually matter for agentic workflows.
 
 Pick presets, toggle individual tools, and get a verified installation with skill files your agent can read.
 
@@ -31,7 +31,7 @@ Pick presets, toggle individual tools, and get a verified installation with skil
 | [fzf](https://github.com/junegunn/fzf) | `fzf` | Fuzzy finder |
 | [xh](https://github.com/ducaale/xh) | `xh` | Friendly HTTP client |
 
-### Agent (11 tools) — on by default
+### Agent (16 tools) — on by default
 
 | Tool | Package | Description |
 |------|---------|-------------|
@@ -46,6 +46,11 @@ Pick presets, toggle individual tools, and get a verified installation with skil
 | [tldr](https://github.com/tldr-pages/tldr) | `tldr` | Quick man page summaries |
 | [biome](https://github.com/biomejs/biome) | `biome` | Lint + format JS/TS |
 | [difftastic](https://github.com/Wilfred/difftastic) | `difftastic` | Structural/AST diff |
+| [pandoc](https://github.com/jgm/pandoc) | `pandoc` | Universal document converter |
+| [duckdb](https://github.com/duckdb/duckdb) | `duckdb` | SQL analytics on CSV/JSON/Parquet files |
+| [htmlq](https://github.com/mgdm/htmlq) | `htmlq` | Extract content from HTML using CSS selectors |
+| [typos](https://github.com/crate-ci/typos) | `typos-cli` | Source code spell checker |
+| [gum](https://github.com/charmbracelet/gum) | `gum` | Interactive UI components for shell scripts |
 
 ### Media (4 tools)
 
@@ -56,7 +61,7 @@ Pick presets, toggle individual tools, and get a verified installation with skil
 | [ImageMagick](https://imagemagick.org) | `imagemagick` | Image transforms |
 | [svgo](https://github.com/svg/svgo) | `svgo` | SVG optimiser |
 
-### DX (10 tools)
+### DX (15 tools)
 
 | Tool | Package | Description |
 |------|---------|-------------|
@@ -70,14 +75,22 @@ Pick presets, toggle individual tools, and get a verified installation with skil
 | [lazygit](https://github.com/jesseduffield/lazygit) | `lazygit` | TUI git client |
 | [dust](https://github.com/bootandy/dust) | `dust` | Disk usage tree |
 | [bottom](https://github.com/ClementTsang/bottom) | `bottom` | System monitor TUI |
+| [direnv](https://github.com/direnv/direnv) | `direnv` | Auto-load env vars per directory |
+| [procs](https://github.com/dalance/procs) | `procs` | Modern ps replacement with search |
+| [uv](https://github.com/astral-sh/uv) | `uv` | Fast Python package and env manager |
+| [hexyl](https://github.com/sharkdp/hexyl) | `hexyl` | Hex viewer with colour coding |
+| [taplo](https://github.com/tamasfe/taplo) | `taplo` | TOML toolkit (lint, format, query) |
 
-### Security (3 tools)
+### Security (6 tools)
 
 | Tool | Package | Description |
 |------|---------|-------------|
 | [trivy](https://github.com/aquasecurity/trivy) | `trivy` | Vulnerability scanner |
 | [act](https://github.com/nektos/act) | `act` | Run GitHub Actions locally |
 | [gitleaks](https://github.com/gitleaks/gitleaks) | `gitleaks` | Secrets scanner |
+| [semgrep](https://github.com/returntocorp/semgrep) | `semgrep` | Multi-language static analysis |
+| [age](https://github.com/FiloSottile/age) | `age` | Simple file encryption |
+| [doggo](https://github.com/mr-karan/doggo) | `doggo` | Modern DNS client with JSON output |
 
 ## How it works
 
@@ -103,6 +116,12 @@ npx agent-loadout install --preset core agent --apply
 # Install everything
 npx agent-loadout install --all --apply
 
+# Install specific tools by ID
+npx agent-loadout install --tool pandoc duckdb --apply
+
+# Install everything except specific tools
+npx agent-loadout install --all --skip lazygit bottom --apply
+
 # Check what's installed
 npx agent-loadout verify
 npx agent-loadout verify --json
@@ -122,7 +141,12 @@ brew bundle
 
 ## Skills
 
-When you install tools, `agent-loadout` writes skill files to `~/.claude/skills/`. Each skill is a focused playbook — what the tool does, trusted commands, gotchas — so your AI agent knows how to use it effectively.
+When you install tools, `agent-loadout` writes skill files to multiple locations:
+
+- `~/.claude/skills/` — for Claude Code
+- `~/.agent-loadout/skills/` — generic copy for other agents
+
+Each skill is a focused playbook — what the tool does, trusted commands, gotchas — so your AI agent knows how to use it effectively.
 
 ## Requirements
 

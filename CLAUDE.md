@@ -7,7 +7,7 @@ CLI that installs and verifies a curated set of terminal tools for agentic codin
 ```
 src/
   index.ts        CLI entry point (commander). Wires commands: install, verify, list.
-  catalog.ts      Tool + preset definitions. Single source of truth for all 29 tools.
+  catalog.ts      Tool + preset definitions. Single source of truth for all 50 tools.
   brew.ts         Generates Brewfile, runs `brew bundle`.
   npm.ts          Handles `npm install -g` for npm-only tools (knip, svgo).
   verify.ts       Runs each tool's verify command, reports installed/missing.
