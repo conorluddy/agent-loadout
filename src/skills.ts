@@ -159,9 +159,21 @@ function buildTOC(tools: Tool[]): string {
     byPreset.set(tool.preset, group);
   }
 
-  const allTags = tools.flatMap((t) => t.tags?.slice(0, 2) ?? []);
-  const tagSummary = [...new Set(allTags)].slice(0, 8).join(", ");
+  // Compact tool inventory for the description field — the only thing surfaced
+  // in the Claude skills system prompt. Format: "Preset: id(primary-use) ..."
+  const compactDescription = PRESETS.filter((p) => byPreset.has(p.id))
+    .map((preset) => {
+      const entries = (byPreset.get(preset.id) ?? [])
+        .map((t) => {
+          const use = (t.tags?.[0] ?? t.description).replace(/ /g, "-");
+          return `${t.id}(${use})`;
+        })
+        .join(" ");
+      return `${preset.name}: ${entries}`;
+    })
+    .join(" | ");
 
+  // Body: full detail for on-demand reads
   const sections = PRESETS.filter((p) => byPreset.has(p.id))
     .map((preset) => {
       const entries = (byPreset.get(preset.id) ?? [])
@@ -176,11 +188,13 @@ function buildTOC(tools: Tool[]): string {
 
   return [
     "---",
-    `description: "Installed CLI tools — ${tagSummary} and more. Read individual files for commands and agent tips."`,
+    `description: "${compactDescription}"`,
     "source: agent-loadout",
     "---",
     "",
     "# Agent Loadout",
+    "",
+    "Each file has trusted commands, output formats, and agent-specific tips.",
     "",
     sections,
     "",
