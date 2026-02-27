@@ -17,4 +17,7 @@ Uses \`.mise.toml\` or \`.tool-versions\` in project root. This ensures determin
 
 ## Gotchas
 - Run \`mise activate zsh\` (or bash/fish) in your shell profile for automatic version switching.
+
+## Why it matters for agents
+Manages runtime versions declaratively via \`.mise.toml\` — agents can use \`mise exec -- node script.js\` to pin the exact Node/Python/Ruby version without modifying global state.
 `.trim();

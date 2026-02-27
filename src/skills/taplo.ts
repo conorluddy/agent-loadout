@@ -18,4 +18,6 @@ Agents editing Cargo.toml, pyproject.toml, or any .toml config can validate and 
 - Config via \`taplo.toml\` or \`.taplo.toml\` at project root.
 - \`taplo get\` uses dot-notation paths for querying.
 - Supports schema validation for known TOML formats (Cargo, pyproject, etc.).
+- \`taplo fmt --check\` exits 1 on formatting diffs — CI-friendly.
+- Use \`--colored=off\` for clean CI output.
 `.trim();

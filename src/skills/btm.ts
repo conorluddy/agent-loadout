@@ -21,4 +21,7 @@ Real-time TUI system monitor — CPU, memory, network, disk, and process list in
 ## Gotchas
 - Config lives at \`~/.config/bottom/bottom.toml\` — customise colours and layout there.
 - \`--basic\` mode is useful in constrained terminals or for quick checks.
+
+## Why it matters for agents
+Note: interactive TUI — not suitable for scripting. For programmatic process info use \`procs --json\`; for one-shot CPU/memory snapshots use \`ps\` or \`top -l 1\`.
 `.trim();

@@ -10,6 +10,11 @@ Benchmark commands to compare performance. Runs commands multiple times and repo
 - With warmup: \`hyperfine --warmup 3 'command'\`
 - Export results: \`hyperfine --export-json results.json 'command'\`
 - Min runs: \`hyperfine --min-runs 20 'command'\`
+- Non-interactive + export: \`hyperfine --style basic --export-json results.json 'cmd1' 'cmd2'\`
+- With prepare step: \`hyperfine --prepare 'make clean' 'make build'\`
+
+## Why it matters for agents
+\`--export-json\` lets agents compare builds and commands quantitatively — structured results include mean, stddev, min, max per command.
 
 ## Gotchas
 - Wrap commands in quotes.
