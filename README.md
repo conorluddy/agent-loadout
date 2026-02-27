@@ -132,6 +132,12 @@ npx agent-loadout list --json
 
 # Print a generated Brewfile (macOS only)
 npx agent-loadout list --brewfile
+
+# Write missing skill files for installed tools
+npx agent-loadout skills
+
+# Rewrite all skill files (e.g. after upgrading agent-loadout)
+npx agent-loadout skills --force
 ```
 
 ## Brewfile alternative (macOS)
@@ -144,12 +150,24 @@ brew bundle
 
 ## Skills
 
-When you install tools, `agent-loadout` writes skill files to multiple locations:
+When you install tools, `agent-loadout` writes skill files to:
 
-- `~/.claude/skills/` — for Claude Code
+- `~/.claude/skills/agent-loadout/` — auto-discovered by Claude Code
 - `~/.agent-loadout/skills/` — generic copy for other agents
 
-Each skill is a focused playbook — what the tool does, trusted commands, gotchas — so your AI agent knows how to use it effectively.
+Each skill is a focused playbook: what the tool does, trusted commands, output formats, and gotchas. A `SKILL.md` index is also written, with every installed tool and its primary use case packed into the frontmatter — so your agent sees the full inventory in its system prompt on every session without loading individual files.
+
+### Syncing skills
+
+Skills are written automatically after `install`. To write or refresh them independently:
+
+```sh
+# Write skills for any installed tools that don't have one yet
+npx agent-loadout skills
+
+# Rewrite skill files for all installed tools
+npx agent-loadout skills --force
+```
 
 ## Requirements
 

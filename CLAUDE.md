@@ -11,10 +11,10 @@ src/
   brew.ts         Generates Brewfile, runs `brew bundle`.
   npm.ts          Handles `npm install -g` for npm-only tools (knip, svgo).
   verify.ts       Runs each tool's verify command, reports installed/missing.
-  skills.ts       Imports skill modules, writes files to ~/.claude/skills/.
+  skills.ts       Imports skill modules, writes per-tool .md files + SKILL.md TOC.
   skills/         One .ts file per tool, each exports a markdown skill string.
   receipt.ts      Reads/writes ~/.agent-loadout/receipt.json (what was installed).
-  paths.ts        Central path constants (~/.agent-loadout/, ~/.claude/skills/).
+  paths.ts        Central path constants (~/.agent-loadout/, ~/.claude/skills/agent-loadout/).
   ui.ts           Interactive prompts (inquirer) and preview formatting.
 ```
 
@@ -60,5 +60,5 @@ pnpm build                  # tsup → dist/
 
 - Don't add tools without a verify command
 - Don't use `execa` with `shell: true` or string commands
-- Don't write to paths outside `~/.agent-loadout/` and `~/.claude/skills/`
+- Don't write to paths outside `~/.agent-loadout/` and `~/.claude/skills/agent-loadout/`
 - Don't import from `dist/` — always import from `./module.js`
