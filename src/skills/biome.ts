@@ -12,6 +12,9 @@ Fast, zero-config linter and formatter for JavaScript/TypeScript projects. Repla
 - Init config: \`biome init\`
 - Check single file: \`biome check src/index.ts\`
 
+## Output format
+Text diagnostics to stderr with file, line, rule name, and description. \`--reporter=json\` emits structured linting output with arrays of diagnostics per file — parse with \`jq\` to filter by severity or rule.
+
 ## Gotchas
 - Requires a \`biome.json\` config or \`--config-path\` flag; \`biome init\` generates a sensible default.
 - Not 100% compatible with all ESLint rules — check the migration guide when switching existing projects.

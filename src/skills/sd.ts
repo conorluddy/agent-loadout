@@ -10,6 +10,9 @@ Find and replace in files. Like sed but with intuitive syntax — no escaping ni
 - Regex replace: \`sd 'v(\\d+)' 'version-$1' file.txt\`
 - Replace across files (with fd): \`fd -e ts -x sd 'old' 'new' {}\`
 
+## Output format
+Rewrites the file in-place with no stdout output. Use \`-p\` / \`--preview\` to print a diff of what would change without modifying the file — safe to run first.
+
 ## Gotchas
 - Uses regex by default. Use \`-F\` for fixed/literal strings.
 - Modifies files in place when given a filename. Use \`-p\` to preview first.

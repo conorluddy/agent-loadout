@@ -16,6 +16,9 @@ Search and replace code using syntax tree patterns instead of regex. Far safer f
 - Replacing with structural awareness (e.g. moving arguments)
 - Any refactor where brackets/nesting matters
 
+## Output format
+\`file:line:col: matched text\` format by default. \`--json\` emits structured match objects with file, range, metavariable bindings, and matched text — use for programmatic processing of results.
+
 ## Gotchas
 - The binary is called \`sg\`, not \`ast-grep\`.
 - \`$ARG\` is a metavariable that matches any single node. \`$$$ARGS\` matches multiple.

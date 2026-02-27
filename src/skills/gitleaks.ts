@@ -18,6 +18,9 @@ gitleaks protect --staged   # pre-commit hook
 gitleaks detect             # CI full scan
 \`\`\`
 
+## Output format
+Text summary to stdout listing finding count and rule matches. \`--report-format json --report-path out.json\` writes structured findings with file, line, rule, commit, and matched secret fragment. Terminal output is human-readable only.
+
 ## Why it matters for agents
 Agents editing configuration files or adding credentials must scan before committing. Exit code 1 on findings makes it trivially composable as a pre-commit gate.
 

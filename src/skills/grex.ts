@@ -10,6 +10,9 @@ Generate a regular expression from a set of example strings. Useful when you kno
 - Case insensitive: \`grex --ignore-case "Foo" "FOO" "foo"\`
 - Verbose regex: \`grex --verbose "foo-123" "bar-456"\`
 
+## Output format
+Single regex string to stdout, ready to copy-paste or pipe. No trailing newline issues — capture with \`PATTERN=$(grex ...)\` and use directly.
+
 ## Gotchas
 - Output is a raw regex string — pipe directly into \`rg\`, \`sd\`, or save to a variable.
 
