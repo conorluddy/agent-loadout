@@ -1,6 +1,7 @@
 import { access, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { paths, ensureSkillDirs } from "./paths.js";
+import { PRESETS } from "./catalog.js";
 import type { Tool } from "./catalog.js";
 
 import rg from "./skills/rg.js";
@@ -111,7 +112,7 @@ const SKILL_CONTENT: Record<string, string> = {
 };
 
 function skillFilename(toolId: string): string {
-  return `${PREFIX}-${toolId}.md`;
+  return `${toolId}.md`;
 }
 
 function buildFrontmatter(tool: Tool): string {
@@ -150,10 +151,47 @@ export async function findToolsMissingSkills(
   return results.filter((id): id is string => id !== null);
 }
 
+function buildTOC(tools: Tool[]): string {
+  const byPreset = new Map<string, Tool[]>();
+  for (const tool of tools) {
+    const group = byPreset.get(tool.preset) ?? [];
+    group.push(tool);
+    byPreset.set(tool.preset, group);
+  }
+
+  const allTags = tools.flatMap((t) => t.tags?.slice(0, 2) ?? []);
+  const tagSummary = [...new Set(allTags)].slice(0, 8).join(", ");
+
+  const sections = PRESETS.filter((p) => byPreset.has(p.id))
+    .map((preset) => {
+      const entries = (byPreset.get(preset.id) ?? [])
+        .map((t) => {
+          const uses = (t.tags ?? []).slice(0, 4).join(" · ");
+          return `- **[${t.name}](./${skillFilename(t.id)})** — ${uses}`;
+        })
+        .join("\n");
+      return `## ${preset.name}\n${entries}`;
+    })
+    .join("\n\n");
+
+  return [
+    "---",
+    `description: "Installed CLI tools — ${tagSummary} and more. Read individual files for commands and agent tips."`,
+    "source: agent-loadout",
+    "---",
+    "",
+    "# Agent Loadout",
+    "",
+    sections,
+    "",
+  ].join("\n");
+}
+
 export async function writeSkills(tools: Tool[]): Promise<number> {
   await ensureSkillDirs();
   const allDirs = [...Object.values(paths.skillTargets), paths.genericSkills];
   let written = 0;
+
   for (const tool of tools) {
     const content = SKILL_CONTENT[tool.id];
     if (!content) continue;
@@ -164,5 +202,12 @@ export async function writeSkills(tools: Tool[]): Promise<number> {
     }
     written++;
   }
+
+  // Write TOC last so it reflects exactly what was written
+  const toc = buildTOC(tools.filter((t) => SKILL_CONTENT[t.id]));
+  for (const dir of allDirs) {
+    await writeFile(join(dir, "SKILL.md"), toc);
+  }
+
   return written;
 }

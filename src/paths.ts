@@ -6,7 +6,7 @@ const BASE_DIR = join(homedir(), ".agent-loadout");
 const GENERIC_SKILLS = join(BASE_DIR, "skills");
 
 const SKILL_TARGETS: Record<string, string> = {
-  claude: join(homedir(), ".claude", "skills"),
+  claude: join(homedir(), ".claude", "skills", "agent-loadout"),
 };
 
 export const paths = {
