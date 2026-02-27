@@ -13,6 +13,9 @@ Scan code for security vulnerabilities, bugs, and anti-patterns across 30+ langu
 - Scan single file: \`semgrep scan --config auto path/to/file.ts\`
 - JSON output: \`semgrep scan --config auto --json\`
 
+## Output format
+Text findings to stdout with file, line, rule ID, and matched code snippet. \`--json\` emits structured match objects with file, line range, severity, rule metadata, and matched text — pipe to \`jq\` for filtering.
+
 ## Why it matters for agents
 Agents can run security and quality scans before committing code. Much broader language coverage than shellcheck or biome alone.
 

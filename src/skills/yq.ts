@@ -11,6 +11,9 @@ Same as jq but for YAML files. Query, filter, and transform YAML.
 - Update in place: \`yq -i '.version = "2.0"' file.yaml\`
 - Merge files: \`yq eval-all 'select(fi == 0) * select(fi == 1)' a.yaml b.yaml\`
 
+## Output format
+YAML by default. \`--output-format=json\` (or \`-o json\`) for JSON. \`--output-format=props\` for Java properties format. \`-P\` (prettyPrint) for pretty YAML from any input format.
+
 ## Gotchas
 - There are multiple tools called yq. This refers to the Go version (mikefarah/yq), installed via brew.
 - Use \`-i\` carefully — it modifies files in place.

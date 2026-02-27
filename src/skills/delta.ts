@@ -19,6 +19,8 @@ Add to ~/.gitconfig:
 
 ## Gotchas
 - The brew package is called \`git-delta\`, but the binary is \`delta\`.
+- Configured via \`~/.gitconfig\` (not CLI flags at runtime) — add \`[delta]\` section with options like \`side-by-side = true\`, \`line-numbers = true\`.
+- Enable with \`git config --global core.pager delta\` — without this, delta is not invoked automatically.
 
 ## Why it matters for agents
 Makes \`git diff\` and \`git log -p\` output readable — useful when agents are reviewing code changes or summarising commits for users.

@@ -13,6 +13,9 @@ Scan filesystems, container images, and code repos for known vulnerabilities.
 - CI gate (fail on findings): \`trivy fs --severity CRITICAL,HIGH --exit-code 1 --no-progress .\`
 - Offline (skip DB update): \`trivy fs --skip-update --format json .\`
 
+## Output format
+Table to stdout by default (target, type, package, vulnerability ID, severity). \`--format json\` emits a structured CVE list with full details per vulnerability including fix version and CVSS score. \`--no-progress\` suppresses the spinner for clean CI output.
+
 ## Why it matters for agents
 Gives agents a security gate before deployments. \`--format json --exit-code 1\` creates a composable CI step — agents can parse findings and summarise critical vulnerabilities.
 

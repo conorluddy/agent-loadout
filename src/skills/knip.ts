@@ -11,6 +11,9 @@ Detect unused files, exports, dependencies, and types in TypeScript/JavaScript p
 - Unused deps only: \`knip --include dependencies\`
 - Machine-readable with scopes: \`knip --reporter json --include files,exports,dependencies\`
 
+## Output format
+Text report to stdout grouped by category (files, exports, dependencies). \`--reporter json\` emits a structured JSON object with arrays per category — pipe to \`jq\` to filter specific types. Exits 1 if issues found (CI-friendly).
+
 ## Why it matters for agents
 Identifies dead code before large refactors — agents can safely delete unused files and exports flagged by knip without breaking the build.
 

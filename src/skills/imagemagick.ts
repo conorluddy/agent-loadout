@@ -16,7 +16,9 @@ Resize, crop, convert, and manipulate images from the command line.
 - \`magick mogrify\` modifies files in place. Use \`magick convert\` (or just \`magick in out\`) for safe transforms.
 
 ## Gotchas
-- The binary is \`magick\` (ImageMagick 7). Older versions used \`convert\`.
+- The binary is \`magick\` (ImageMagick 7). Older versions used \`convert\` — don't use \`convert\` on macOS as it shadows a system binary.
+- Always specify the output format explicitly in the filename — \`magick input.png output.jpg\` converts; omitting extension may produce unexpected formats.
+- \`mogrify\` modifies files destructively in place — always test with \`magick convert\` on a single file first, or back up the originals.
 
 ## Why it matters for agents
 Batch image processing without opening apps — useful for automated asset pipelines. Agents can resize, convert formats, and generate thumbnails in a single \`mogrify\` invocation.
