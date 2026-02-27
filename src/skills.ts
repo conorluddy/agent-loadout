@@ -114,6 +114,24 @@ function skillFilename(toolId: string): string {
   return `${PREFIX}-${toolId}.md`;
 }
 
+function buildFrontmatter(tool: Tool): string {
+  const lines = [
+    "---",
+    `tool: ${tool.id}`,
+    `name: ${tool.name}`,
+    `description: ${tool.description}`,
+    `category: ${tool.preset}`,
+  ];
+  if (tool.tags?.length) {
+    lines.push(`tags: [${tool.tags.join(", ")}]`);
+  }
+  if (tool.seeAlso?.length) {
+    lines.push(`see-also: [${tool.seeAlso.join(", ")}]`);
+  }
+  lines.push("source: agent-loadout", "---", "");
+  return lines.join("\n");
+}
+
 export async function findToolsMissingSkills(
   toolIds: string[],
   dir = paths.skillTargets.claude,
@@ -140,8 +158,9 @@ export async function writeSkills(tools: Tool[]): Promise<number> {
     const content = SKILL_CONTENT[tool.id];
     if (!content) continue;
     const filename = skillFilename(tool.id);
+    const frontmatter = buildFrontmatter(tool);
     for (const dir of allDirs) {
-      await writeFile(join(dir, filename), content + "\n");
+      await writeFile(join(dir, filename), frontmatter + content + "\n");
     }
     written++;
   }

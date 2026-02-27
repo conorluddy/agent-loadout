@@ -14,6 +14,10 @@ export type Tool = {
   verify: string | Partial<Record<Platform, string>>;
   /** null = unavailable on this platform; array = try in order, first available manager wins */
   install: Record<Platform, PlatformInstall[] | null>;
+  /** intent-matching keywords for agent discovery (4–8 phrases) */
+  tags?: string[];
+  /** ids of complementary tools */
+  seeAlso?: string[];
 };
 
 export type PresetId = "core" | "agent" | "media" | "dx" | "security";
@@ -129,6 +133,8 @@ export const TOOLS: Tool[] = [
     preset: "core",
     verify: "rg --version",
     install: brewScoopAptCargo("ripgrep", "ripgrep", "ripgrep"),
+    tags: ["search", "grep", "find text", "code search", "pattern match", "codebase search"],
+    seeAlso: ["fd", "bat", "ast-grep"],
   },
   {
     id: "fd",
@@ -141,6 +147,8 @@ export const TOOLS: Tool[] = [
       linux: [{ method: "apt", package: "fd-find" }, { method: "cargo", package: "fd-find" }],
       win32: [{ method: "scoop", package: "fd" }],
     },
+    tags: ["find files", "file search", "locate files", "glob", "directory search"],
+    seeAlso: ["rg", "fzf", "eza"],
   },
   {
     id: "jq",
@@ -149,6 +157,8 @@ export const TOOLS: Tool[] = [
     preset: "core",
     verify: "jq --version",
     install: universal("jq"),
+    tags: ["json", "parse json", "filter json", "api response", "json transform"],
+    seeAlso: ["yq", "duckdb", "xh"],
   },
   {
     id: "yq",
@@ -162,6 +172,8 @@ export const TOOLS: Tool[] = [
       linux: null,
       win32: [{ method: "scoop", package: "yq" }],
     },
+    tags: ["yaml", "parse yaml", "yaml transform", "config files", "toml"],
+    seeAlso: ["jq", "taplo"],
   },
   {
     id: "bat",
@@ -177,6 +189,8 @@ export const TOOLS: Tool[] = [
       ],
       win32: [{ method: "scoop", package: "bat" }],
     },
+    tags: ["view file", "syntax highlighting", "cat", "preview code", "pager"],
+    seeAlso: ["rg", "delta", "glow"],
   },
   {
     id: "tree",
@@ -185,6 +199,8 @@ export const TOOLS: Tool[] = [
     preset: "core",
     verify: "tree --version",
     install: universal("tree"),
+    tags: ["directory tree", "folder structure", "list files", "project layout"],
+    seeAlso: ["eza", "fd", "dust"],
   },
   {
     id: "gh",
@@ -197,6 +213,8 @@ export const TOOLS: Tool[] = [
       linux: [{ method: "apt", package: "gh" }],
       win32: [{ method: "scoop", package: "gh" }],
     },
+    tags: ["github", "pull request", "pr", "issues", "ci status", "releases", "repo management"],
+    seeAlso: ["lazygit", "act", "gitleaks"],
   },
   {
     id: "fzf",
@@ -205,6 +223,8 @@ export const TOOLS: Tool[] = [
     preset: "core",
     verify: "fzf --version",
     install: universal("fzf"),
+    tags: ["fuzzy find", "interactive search", "pick file", "filter list", "autocomplete"],
+    seeAlso: ["fd", "rg", "zoxide"],
   },
   {
     id: "xh",
@@ -213,6 +233,8 @@ export const TOOLS: Tool[] = [
     preset: "core",
     verify: "xh --version",
     install: brewScoopCargo("xh", "xh"),
+    tags: ["http request", "api call", "curl", "rest", "post request", "http testing"],
+    seeAlso: ["jq", "htmlq"],
   },
 
   // ── Agent ─────────────────────────────────────────────
@@ -223,6 +245,8 @@ export const TOOLS: Tool[] = [
     preset: "agent",
     verify: "shellcheck --version",
     install: universal("shellcheck"),
+    tags: ["shell script", "bash lint", "script error", "sh validation", "bash debug"],
+    seeAlso: ["sd", "just"],
   },
   {
     id: "ast-grep",
@@ -235,6 +259,8 @@ export const TOOLS: Tool[] = [
       linux: [{ method: "cargo", package: "ast-grep" }],
       win32: [{ method: "scoop", package: "ast-grep" }],
     },
+    tags: ["structural search", "code pattern", "ast", "refactor", "codemod", "syntax-aware"],
+    seeAlso: ["rg", "sd", "biome"],
   },
   {
     id: "just",
@@ -243,6 +269,8 @@ export const TOOLS: Tool[] = [
     preset: "agent",
     verify: "just --version",
     install: brewScoopCargo("just", "just"),
+    tags: ["task runner", "commands menu", "build tasks", "makefile", "recipe", "run scripts"],
+    seeAlso: ["watchexec", "shellcheck"],
   },
   {
     id: "grex",
@@ -251,6 +279,8 @@ export const TOOLS: Tool[] = [
     preset: "agent",
     verify: "grex --version",
     install: brewScoopCargo("grex", "grex"),
+    tags: ["regex", "generate regex", "pattern from examples", "regular expression", "infer pattern"],
+    seeAlso: ["sd", "rg"],
   },
   {
     id: "knip",
@@ -259,6 +289,8 @@ export const TOOLS: Tool[] = [
     preset: "agent",
     verify: "knip --version",
     install: npmAll("knip"),
+    tags: ["unused code", "dead code", "unused imports", "ts cleanup", "dependency audit"],
+    seeAlso: ["biome", "tokei"],
   },
   {
     id: "sd",
@@ -267,6 +299,8 @@ export const TOOLS: Tool[] = [
     preset: "agent",
     verify: "sd --version",
     install: brewScoopCargo("sd", "sd"),
+    tags: ["find replace", "text substitution", "sed", "regex replace", "bulk edit"],
+    seeAlso: ["rg", "ast-grep", "grex"],
   },
   {
     id: "hyperfine",
@@ -275,6 +309,8 @@ export const TOOLS: Tool[] = [
     preset: "agent",
     verify: "hyperfine --version",
     install: brewScoopAptCargo("hyperfine", "hyperfine", "hyperfine"),
+    tags: ["benchmark", "performance test", "timing", "compare commands", "profiling"],
+    seeAlso: ["tokei", "btm"],
   },
   {
     id: "tokei",
@@ -283,6 +319,8 @@ export const TOOLS: Tool[] = [
     preset: "agent",
     verify: "tokei --version",
     install: brewScoopCargo("tokei", "tokei"),
+    tags: ["code stats", "line count", "language breakdown", "codebase size", "loc"],
+    seeAlso: ["hyperfine", "knip", "dust"],
   },
   {
     id: "tldr",
@@ -291,6 +329,8 @@ export const TOOLS: Tool[] = [
     preset: "agent",
     verify: "tldr --version",
     install: universal("tldr"),
+    tags: ["man page", "command help", "usage examples", "quick reference", "cheatsheet"],
+    seeAlso: ["bat", "glow"],
   },
   {
     id: "biome",
@@ -303,6 +343,8 @@ export const TOOLS: Tool[] = [
       linux: [{ method: "npm", package: "@biomejs/biome" }],
       win32: [{ method: "npm", package: "@biomejs/biome" }],
     },
+    tags: ["lint", "format", "typescript", "javascript", "code style", "prettier alternative"],
+    seeAlso: ["knip", "ast-grep", "typos"],
   },
   {
     id: "difftastic",
@@ -311,6 +353,8 @@ export const TOOLS: Tool[] = [
     preset: "agent",
     verify: "difft --version",
     install: brewScoopCargo("difftastic", "difftastic"),
+    tags: ["diff", "compare files", "git diff", "structural diff", "ast diff"],
+    seeAlso: ["delta", "ast-grep"],
   },
   {
     id: "pandoc",
@@ -319,6 +363,8 @@ export const TOOLS: Tool[] = [
     preset: "agent",
     verify: "pandoc --version",
     install: universal("pandoc"),
+    tags: ["convert document", "markdown to pdf", "docx", "format conversion", "export"],
+    seeAlso: ["glow", "bat"],
   },
   {
     id: "duckdb",
@@ -332,6 +378,8 @@ export const TOOLS: Tool[] = [
       linux: null,
       win32: [{ method: "scoop", package: "duckdb" }],
     },
+    tags: ["sql", "csv", "parquet", "analytics", "query data", "data analysis"],
+    seeAlso: ["jq", "yq", "htmlq"],
   },
   {
     id: "htmlq",
@@ -340,6 +388,8 @@ export const TOOLS: Tool[] = [
     preset: "agent",
     verify: "htmlq --version",
     install: brewScoopCargo("htmlq", "htmlq"),
+    tags: ["html", "css selector", "scrape", "extract html", "parse html", "web"],
+    seeAlso: ["xh", "jq", "duckdb"],
   },
   {
     id: "typos",
@@ -352,6 +402,8 @@ export const TOOLS: Tool[] = [
       linux: [{ method: "cargo", package: "typos-cli" }],
       win32: [{ method: "scoop", package: "typos" }],
     },
+    tags: ["spell check", "typo", "source code spelling", "writing quality", "documentation"],
+    seeAlso: ["biome", "shellcheck"],
   },
   {
     id: "gum",
@@ -365,6 +417,8 @@ export const TOOLS: Tool[] = [
       linux: null,
       win32: [{ method: "scoop", package: "gum" }],
     },
+    tags: ["interactive shell", "tui prompt", "user input", "shell script ui", "confirm dialog"],
+    seeAlso: ["fzf", "just"],
   },
 
   // ── Media ─────────────────────────────────────────────
@@ -375,6 +429,8 @@ export const TOOLS: Tool[] = [
     preset: "media",
     verify: "ffmpeg -version",
     install: universal("ffmpeg"),
+    tags: ["video convert", "audio convert", "transcode", "encode", "media processing", "extract audio"],
+    seeAlso: ["imagemagick", "exiftool"],
   },
   {
     id: "exiftool",
@@ -387,6 +443,8 @@ export const TOOLS: Tool[] = [
       linux: [{ method: "apt", package: "libimage-exiftool-perl" }],
       win32: [{ method: "scoop", package: "exiftool" }],
     },
+    tags: ["image metadata", "exif", "photo info", "media tags", "strip metadata"],
+    seeAlso: ["imagemagick", "ffmpeg"],
   },
   {
     id: "imagemagick",
@@ -395,6 +453,8 @@ export const TOOLS: Tool[] = [
     preset: "media",
     verify: "magick -version",
     install: universal("imagemagick"),
+    tags: ["image resize", "image convert", "image transform", "thumbnail", "crop image"],
+    seeAlso: ["exiftool", "svgo", "ffmpeg"],
   },
   {
     id: "svgo",
@@ -403,6 +463,8 @@ export const TOOLS: Tool[] = [
     preset: "media",
     verify: "svgo --version",
     install: npmAll("svgo"),
+    tags: ["svg optimize", "svg compress", "vector graphics", "svg minify", "icon optimize"],
+    seeAlso: ["imagemagick"],
   },
 
   // ── DX ────────────────────────────────────────────────
@@ -413,6 +475,8 @@ export const TOOLS: Tool[] = [
     preset: "dx",
     verify: "eza --version",
     install: brewScoopCargo("eza", "eza"),
+    tags: ["list files", "ls", "directory listing", "file icons", "tree view"],
+    seeAlso: ["tree", "fd", "dust"],
   },
   {
     id: "zoxide",
@@ -421,6 +485,8 @@ export const TOOLS: Tool[] = [
     preset: "dx",
     verify: "zoxide --version",
     install: brewScoopCargo("zoxide", "zoxide"),
+    tags: ["cd", "directory jump", "smart navigation", "recent dirs", "z command"],
+    seeAlso: ["fzf", "eza"],
   },
   {
     id: "delta",
@@ -433,6 +499,8 @@ export const TOOLS: Tool[] = [
       linux: [{ method: "cargo", package: "git-delta" }],
       win32: [{ method: "scoop", package: "delta" }],
     },
+    tags: ["git diff", "diff viewer", "side by side diff", "code review", "syntax diff"],
+    seeAlso: ["difftastic", "lazygit", "bat"],
   },
   {
     id: "glow",
@@ -446,6 +514,8 @@ export const TOOLS: Tool[] = [
       linux: null,
       win32: [{ method: "scoop", package: "glow" }],
     },
+    tags: ["render markdown", "markdown preview", "terminal markdown", "readme viewer"],
+    seeAlso: ["bat", "pandoc", "tldr"],
   },
   {
     id: "mise",
@@ -459,6 +529,8 @@ export const TOOLS: Tool[] = [
       linux: null,
       win32: [{ method: "scoop", package: "mise" }],
     },
+    tags: ["runtime version", "node version", "python version", "version manager", "toolchain"],
+    seeAlso: ["uv", "direnv"],
   },
   {
     id: "watchexec",
@@ -467,6 +539,8 @@ export const TOOLS: Tool[] = [
     preset: "dx",
     verify: "watchexec --version",
     install: brewScoopCargo("watchexec", "watchexec"),
+    tags: ["watch files", "run on change", "live reload", "file watcher", "auto restart"],
+    seeAlso: ["just", "mise"],
   },
   {
     id: "mkcert",
@@ -480,6 +554,8 @@ export const TOOLS: Tool[] = [
       linux: null,
       win32: [{ method: "scoop", package: "mkcert" }],
     },
+    tags: ["https", "local ssl", "dev certificate", "tls", "self signed"],
+    seeAlso: ["age", "trivy"],
   },
   {
     id: "lazygit",
@@ -493,6 +569,8 @@ export const TOOLS: Tool[] = [
       linux: null,
       win32: [{ method: "scoop", package: "lazygit" }],
     },
+    tags: ["git tui", "git interface", "stage commits", "git visual", "interactive git"],
+    seeAlso: ["gh", "delta", "difftastic"],
   },
   {
     id: "dust",
@@ -501,6 +579,8 @@ export const TOOLS: Tool[] = [
     preset: "dx",
     verify: "dust --version",
     install: brewScoopCargo("dust", "du-dust"),
+    tags: ["disk usage", "disk space", "folder size", "storage", "du"],
+    seeAlso: ["eza", "tree", "btm"],
   },
   {
     id: "btm",
@@ -513,6 +593,8 @@ export const TOOLS: Tool[] = [
       linux: [{ method: "cargo", package: "bottom" }],
       win32: [{ method: "scoop", package: "bottom" }],
     },
+    tags: ["system monitor", "cpu usage", "memory", "processes", "resource monitor"],
+    seeAlso: ["procs", "dust", "hyperfine"],
   },
   {
     id: "direnv",
@@ -521,6 +603,8 @@ export const TOOLS: Tool[] = [
     preset: "dx",
     verify: "direnv version",
     install: universal("direnv"),
+    tags: ["environment variables", "env vars", ".env", "per-project env", "dotenv"],
+    seeAlso: ["mise", "uv"],
   },
   {
     id: "procs",
@@ -529,6 +613,8 @@ export const TOOLS: Tool[] = [
     preset: "dx",
     verify: "procs --version",
     install: brewScoopCargo("procs", "procs"),
+    tags: ["process list", "ps", "running processes", "process search", "pid"],
+    seeAlso: ["btm", "dust"],
   },
   {
     id: "uv",
@@ -541,6 +627,8 @@ export const TOOLS: Tool[] = [
       linux: [{ method: "cargo", package: "uv" }],
       win32: [{ method: "scoop", package: "uv" }],
     },
+    tags: ["python", "pip", "python package", "virtualenv", "python environment"],
+    seeAlso: ["mise", "direnv"],
   },
   {
     id: "hexyl",
@@ -549,6 +637,8 @@ export const TOOLS: Tool[] = [
     preset: "dx",
     verify: "hexyl --version",
     install: brewScoopCargo("hexyl", "hexyl"),
+    tags: ["hex dump", "binary file", "byte inspection", "hex view", "binary analysis"],
+    seeAlso: ["bat", "exiftool"],
   },
   {
     id: "taplo",
@@ -557,6 +647,8 @@ export const TOOLS: Tool[] = [
     preset: "dx",
     verify: "taplo --version",
     install: brewScoopCargo("taplo", "taplo-cli"),
+    tags: ["toml", "toml lint", "toml format", "config validation", "cargo toml"],
+    seeAlso: ["yq", "biome"],
   },
 
   // ── Security ──────────────────────────────────────────
@@ -571,6 +663,8 @@ export const TOOLS: Tool[] = [
       linux: [{ method: "apt", package: "trivy" }],
       win32: [{ method: "scoop", package: "trivy" }],
     },
+    tags: ["vulnerability scan", "cve", "docker scan", "dependency scan", "security audit"],
+    seeAlso: ["semgrep", "gitleaks", "act"],
   },
   {
     id: "act",
@@ -584,6 +678,8 @@ export const TOOLS: Tool[] = [
       linux: null,
       win32: [{ method: "scoop", package: "act" }],
     },
+    tags: ["github actions", "local ci", "workflow test", "ci debug", "actions runner"],
+    seeAlso: ["gh", "trivy"],
   },
   {
     id: "gitleaks",
@@ -597,6 +693,8 @@ export const TOOLS: Tool[] = [
       linux: null,
       win32: [{ method: "scoop", package: "gitleaks" }],
     },
+    tags: ["secret scan", "api key leak", "credentials", "git history scan", "sensitive data"],
+    seeAlso: ["trivy", "semgrep", "gh"],
   },
   {
     id: "semgrep",
@@ -609,6 +707,8 @@ export const TOOLS: Tool[] = [
       linux: [{ method: "apt", package: "semgrep" }],
       win32: null, // not available on Windows
     },
+    tags: ["static analysis", "security scan", "code pattern", "sast", "vulnerability detection"],
+    seeAlso: ["trivy", "gitleaks", "shellcheck"],
   },
   {
     id: "age",
@@ -621,6 +721,8 @@ export const TOOLS: Tool[] = [
       linux: [{ method: "apt", package: "age" }, { method: "cargo", package: "rage" }],
       win32: [{ method: "scoop", package: "age" }],
     },
+    tags: ["encrypt", "decrypt", "file encryption", "secrets", "pgp alternative"],
+    seeAlso: ["gitleaks", "mkcert"],
   },
   {
     id: "doggo",
@@ -634,6 +736,8 @@ export const TOOLS: Tool[] = [
       linux: null,
       win32: [{ method: "scoop", package: "doggo" }],
     },
+    tags: ["dns", "dns lookup", "dns query", "nameserver", "network debug"],
+    seeAlso: ["xh", "trivy"],
   },
 ];
 
