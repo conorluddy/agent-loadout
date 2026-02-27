@@ -21,7 +21,7 @@ const program = new Command();
 program
   .name("agent-loadout")
   .description("One command to load out your terminal for agentic coding")
-  .version("0.4.0");
+  .version("1.0.0");
 
 // Handle Ctrl+C gracefully
 process.on("SIGINT", () => {
