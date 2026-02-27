@@ -1,4 +1,4 @@
-import { writeFile } from "node:fs/promises";
+import { access, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { paths, ensureSkillDirs } from "./paths.js";
 import type { Tool } from "./catalog.js";
@@ -112,6 +112,24 @@ const SKILL_CONTENT: Record<string, string> = {
 
 function skillFilename(toolId: string): string {
   return `${PREFIX}-${toolId}.md`;
+}
+
+export async function findToolsMissingSkills(
+  toolIds: string[],
+  dir = paths.skillTargets.claude,
+): Promise<string[]> {
+  const results = await Promise.all(
+    toolIds.map(async (id) => {
+      const filePath = join(dir, skillFilename(id));
+      try {
+        await access(filePath);
+        return null;
+      } catch {
+        return id;
+      }
+    }),
+  );
+  return results.filter((id): id is string => id !== null);
 }
 
 export async function writeSkills(tools: Tool[]): Promise<number> {
