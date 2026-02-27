@@ -19,4 +19,7 @@ Read, write, and strip metadata (EXIF, IPTC, XMP) from images and media files.
 ## Gotchas
 - Field names are case-insensitive.
 - Use \`-json\` for structured output.
+
+## Why it matters for agents
+\`-json\` output enables structured metadata extraction from any media file — agents can batch-read EXIF data, filter by GPS coordinates, or rename files by capture date programmatically.
 `.trim();

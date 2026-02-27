@@ -15,7 +15,11 @@ Find files by name pattern. Faster than \`find\`, respects .gitignore, sane defa
 ## Output format
 One path per line, relative to search root.
 
+## Why it matters for agents
+\`-x\` flag enables batch file operations without shell loops — agents can use \`fd -e ts -x sd 'old' 'new' {}\` to safely refactor across many files.
+
 ## Gotchas
 - Regex by default. Use \`-g\` for glob patterns.
 - Ignores .gitignore'd files by default. Use \`--no-ignore\` to include.
+- On Debian/Ubuntu the binary is \`fdfind\`, not \`fd\`. Use \`alias fd=fdfind\` or install via cargo.
 `.trim();

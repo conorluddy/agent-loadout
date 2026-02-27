@@ -11,5 +11,8 @@ Generate a regular expression from a set of example strings. Useful when you kno
 - Verbose regex: \`grex --verbose "foo-123" "bar-456"\`
 
 ## Gotchas
-- Output is a regex string, not a replacement. Useful as input for rg, sd, or code.
+- Output is a raw regex string — pipe directly into \`rg\`, \`sd\`, or save to a variable.
+
+## Why it matters for agents
+Lets agents generate correct regex from test cases rather than hallucinating patterns — eliminates a whole class of regex bugs.
 `.trim();

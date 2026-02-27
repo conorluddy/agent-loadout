@@ -18,8 +18,13 @@ gitleaks protect --staged   # pre-commit hook
 gitleaks detect             # CI full scan
 \`\`\`
 
+## Why it matters for agents
+Agents editing configuration files or adding credentials must scan before committing. Exit code 1 on findings makes it trivially composable as a pre-commit gate.
+
 ## Gotchas
 - Findings include file, line, rule, and matched secret fragment — review before dismissing.
 - Use a \`.gitleaksignore\` file to whitelist known false positives.
 - Does not redact secrets from history — use \`git filter-repo\` to remove them.
+- Returns exit code 1 if leaks found, 0 if clean — use directly in CI pipelines.
+- Custom rules: \`gitleaks detect --config custom-rules.toml --report-format json\`
 `.trim();

@@ -16,4 +16,7 @@ Visualise what's eating disk space in a directory tree. Faster and more readable
 - Output is proportional bars + sizes; percentages are relative to the scanned root, not total disk.
 - Use \`-d 1\` for a quick top-level summary before drilling down.
 - Symlinks are not followed by default — add \`-L\` to follow them.
+
+## Why it matters for agents
+Identifies large directories before disk operations — agents can quickly find what to clean up with \`dust -d 1\` before running builds or copying large directories.
 `.trim();

@@ -13,7 +13,7 @@ import {
   printPreview,
   confirmInstall,
 } from "./ui.js";
-import { writeSkills } from "./skills.js";
+import { writeSkills, findToolsMissingSkills } from "./skills.js";
 import { paths } from "./paths.js";
 
 const program = new Command();
@@ -235,6 +235,53 @@ program
       }
     }
     console.log();
+  });
+
+// ── Skills command ──────────────────────────────────────
+
+program
+  .command("skills")
+  .description("Write skill files for installed tools (fills gaps by default)")
+  .option("--force", "Rewrite skill files for all installed tools")
+  .action(async (opts) => {
+    const platformInfo = await detectPlatform();
+    const results = await verifyTools(TOOLS, platformInfo.platform);
+    const installedIds = new Set(results.filter((r) => r.installed).map((r) => r.id));
+    const installedTools = TOOLS.filter((t) => installedIds.has(t.id));
+
+    if (installedTools.length === 0) {
+      console.log(chalk.dim("  No installed tools found."));
+      return;
+    }
+
+    if (opts.force) {
+      console.log(chalk.dim(`  Writing skills for ${installedTools.length} installed tools...`));
+      const written = await writeSkills(installedTools);
+      const targets = Object.keys(paths.skillTargets).join(", ");
+      console.log(
+        chalk.green(`  ${written} skill files written to ${targets} + ~/.agent-loadout/skills/`),
+      );
+      return;
+    }
+
+    console.log(chalk.dim(`  Scanning ${installedTools.length} installed tools...`));
+    const missingIds = await findToolsMissingSkills(installedTools.map((t) => t.id));
+
+    if (missingIds.length === 0) {
+      console.log(chalk.green(`  ✓ All ${installedTools.length} installed tools already have skill files.`));
+      return;
+    }
+
+    const alreadyHave = installedTools.length - missingIds.length;
+    console.log(chalk.dim(`  ${alreadyHave} already have skill files`));
+    console.log(chalk.dim(`  Writing ${missingIds.length} missing: ${missingIds.join(", ")}`));
+
+    const toolsToWrite = installedTools.filter((t) => missingIds.includes(t.id));
+    const written = await writeSkills(toolsToWrite);
+    const targets = Object.keys(paths.skillTargets).join(", ");
+    console.log(
+      chalk.green(`  ${written} skill files written to ${targets} + ~/.agent-loadout/skills/`),
+    );
   });
 
 program.parse();

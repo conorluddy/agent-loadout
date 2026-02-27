@@ -17,4 +17,7 @@ Resize, crop, convert, and manipulate images from the command line.
 
 ## Gotchas
 - The binary is \`magick\` (ImageMagick 7). Older versions used \`convert\`.
+
+## Why it matters for agents
+Batch image processing without opening apps — useful for automated asset pipelines. Agents can resize, convert formats, and generate thumbnails in a single \`mogrify\` invocation.
 `.trim();

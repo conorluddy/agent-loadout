@@ -19,4 +19,7 @@ Add to ~/.gitconfig:
 
 ## Gotchas
 - The brew package is called \`git-delta\`, but the binary is \`delta\`.
+
+## Why it matters for agents
+Makes \`git diff\` and \`git log -p\` output readable — useful when agents are reviewing code changes or summarising commits for users.
 `.trim();

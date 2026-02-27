@@ -22,4 +22,7 @@ Interactive terminal UI for git — stage hunks, commit, branch, rebase, and pus
 - Requires git to be installed (it's a UI wrapper, not a replacement).
 - Config lives at \`~/.config/lazygit/config.yml\`.
 - Mouse support is on by default — click panels to navigate.
+
+## Why it matters for agents
+Note: interactive TUI only — not suitable for agent automation. For scripted git operations use \`git\` CLI directly; for GitHub automation use \`gh\`.
 `.trim();
