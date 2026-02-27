@@ -56,6 +56,10 @@ pnpm build                  # tsup → dist/
 
 `catalog.ts` is the trust boundary. Every tool must be explicitly listed with a known package name and verify command. No arbitrary install targets — users only choose from the curated catalog.
 
+## PR checklist
+
+- Bump `version` in `package.json` with every PR (semver: patch for fixes/content, minor for new features)
+
 ## What NOT to do
 
 - Don't add tools without a verify command

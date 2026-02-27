@@ -1,6 +1,6 @@
 {
   "name": "agent-loadout",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "One command to load out your terminal for agentic coding",
   "type": "module",
   "bin": {
