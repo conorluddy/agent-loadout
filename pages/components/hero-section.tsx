@@ -84,9 +84,14 @@ export function HeroSection() {
           </p>
 
           {/* Install command */}
-          <div className="mt-8 inline-flex items-center gap-3 border border-accent/30 bg-accent/5 px-6 py-3 font-mono text-sm">
-            <span className="text-muted-foreground">$</span>
-            <code className="text-accent">npx agent-loadout</code>
+          <div className="mt-8 flex items-center gap-4">
+            <div className="inline-flex items-center gap-3 border border-accent/30 bg-accent/5 px-6 py-3 font-mono text-sm">
+              <span className="text-muted-foreground">$</span>
+              <code className="text-accent">npx agent-loadout</code>
+            </div>
+            <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/60 border border-border/30 px-2 py-1">
+              v1.2.0
+            </span>
           </div>
 
           <div className="mt-12 flex items-center gap-8">

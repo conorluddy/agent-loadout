@@ -83,7 +83,7 @@ export function ColophonSection() {
     >
       {/* Section header */}
       <div ref={headerRef} className="mb-16">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">04 / Reference</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">06 / Reference</span>
         <h2 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight">COMMANDS</h2>
       </div>
 
